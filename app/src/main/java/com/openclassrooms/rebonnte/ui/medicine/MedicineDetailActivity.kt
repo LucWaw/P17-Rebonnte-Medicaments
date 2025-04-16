@@ -26,7 +26,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -57,7 +57,7 @@ class MedicineDetailActivity : ComponentActivity() {
 fun MedicineDetailScreen(name: String, viewModel: MedicineViewModel) {
     val medicines by viewModel.medicines.collectAsState(initial = emptyList())
     val medicine = medicines.find { it.name == name } ?: return
-    var stock by remember { mutableStateOf(medicine.stock) }
+    var stock by remember { mutableIntStateOf(medicine.stock) }
 
     Scaffold { paddingValues ->
         Column(
@@ -87,14 +87,15 @@ fun MedicineDetailScreen(name: String, viewModel: MedicineViewModel) {
             ) {
                 IconButton(onClick = {
                     if (stock > 0) {
-                        medicines[medicines.size].histories.toMutableList().add(
-                            History(
-                                medicine.name,
-                                "efeza56f1e65f",
-                                Date().toString(),
-                                "Updated medicine details"
+                        medicine.histories.toMutableList()
+                            .add( //Can't work : toMutableList() returns new list
+                                History(
+                                    medicine.name,
+                                    "efeza56f1e65f",
+                                    Date().toString(),
+                                    "Updated medicine details"
+                                )
                             )
-                        )
                         stock--
                     }
                 }) {
@@ -111,14 +112,15 @@ fun MedicineDetailScreen(name: String, viewModel: MedicineViewModel) {
                     modifier = Modifier.weight(1f)
                 )
                 IconButton(onClick = {
-                    medicines[medicines.size].histories.toMutableList().add(
-                        History(
-                            medicine.name,
-                            "efeza56f1e65f",
-                            Date().toString(),
-                            "Updated medicine details"
+                    medicine.histories.toMutableList()
+                        .add( //Can't work : toMutableList() returns new list
+                            History(
+                                medicine.name,
+                                "efeza56f1e65f",
+                                Date().toString(),
+                                "Updated medicine details"
+                            )
                         )
-                    )
                     stock++
                 }) {
                     Icon(
