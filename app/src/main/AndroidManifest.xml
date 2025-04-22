@@ -11,10 +11,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Rebonnte"
+
         tools:targetApi="31">
-        <receiver android:name=".MainActivity$MyBroadcastReceiver"
-            android:exported="@bool/receiver_exported">
-        </receiver>
         <activity
             android:name=".ui.medicine.MedicineDetailActivity"
             android:theme="@style/Theme.Rebonnte.ActionBar"
@@ -27,8 +25,7 @@
             android:exported="false" />
         <activity
             android:name=".MainActivity"
-            android:exported="true"
-            android:label="@string/app_name">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

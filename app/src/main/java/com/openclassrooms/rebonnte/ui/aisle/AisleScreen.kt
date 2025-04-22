@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -27,10 +28,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.firebase.ui.auth.AuthUI
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AisleScreen(viewModel: AisleViewModel) {
+fun AisleScreen(viewModel: AisleViewModel, navigateToLogin: () -> Unit) {
     val aisles by viewModel.aisles.collectAsState(initial = emptyList())
     val context = LocalContext.current
 
@@ -44,11 +46,22 @@ fun AisleScreen(viewModel: AisleViewModel) {
                 }
             },
         floatingActionButton = {
-            FloatingActionButton(onClick = {
-
-            }) {
-                Icon(Icons.Default.Add, contentDescription = "Add")
+            val context = LocalContext.current
+            Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
+                FloatingActionButton(onClick = {
+                    AuthUI.getInstance().signOut(context).addOnSuccessListener {
+                        navigateToLogin()
+                    }
+                }) {
+                    Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "Add")
+                }
+                FloatingActionButton(onClick = {
+                    viewModel.addRandomAisle()
+                }) {
+                    Icon(Icons.Default.Add, contentDescription = "Add")
+                }
             }
+
         }
     ) { paddingValues ->
         LazyColumn(

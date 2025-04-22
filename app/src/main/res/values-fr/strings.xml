@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">rebonnte</string>
+    <string name="retry_login">Réessayer de ce connecter</string>
+    <string name="cannot_access_if_not_logged_in">Vous ne pouvez pas accéder à l\'application si vous n\'êtes pas connecté.</string>
+    <string name="network_error">Erreur de réseau, vérifiez votre connexion Internet.</string>
+    <string name="unknow_error">Une erreur inconnue s\'est produite.</string>
+    <string name="SuccessfulConnexion">Connexion Réussie</string>
+</resources>

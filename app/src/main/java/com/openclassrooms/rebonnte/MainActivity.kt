@@ -22,6 +22,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
+import com.openclassrooms.rebonnte.ui.account.SignInScreen
 import com.openclassrooms.rebonnte.ui.aisle.AisleScreen
 import com.openclassrooms.rebonnte.ui.aisle.AisleViewModel
 import com.openclassrooms.rebonnte.ui.medicine.MedicineScreen
@@ -93,12 +96,14 @@ fun MyApp() {
                 NavigationBar {
                     NavigationBarItem(
                         icon = { Icon(Icons.Default.Home, contentDescription = null) },
+                        enabled = Firebase.auth.currentUser != null,
                         label = { Text("Aisle") },
                         selected = currentRoute(navController) == "aisle",
                         onClick = { navController.navigate("aisle") }
                     )
                     NavigationBarItem(
                         icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = null) },
+                        enabled = Firebase.auth.currentUser != null,
                         label = { Text("Medicine") },
                         selected = currentRoute(navController) == "medicine",
                         onClick = { navController.navigate("medicine") }
@@ -109,10 +114,33 @@ fun MyApp() {
             NavHost(
                 modifier = Modifier.padding(it),
                 navController = navController,
-                startDestination = "aisle"
+                startDestination = "login"
             ) {
-                composable("aisle") { AisleScreen(aisleViewModel) }
+                composable("aisle") {
+                    AisleScreen(
+                        aisleViewModel
+                    ) {
+                        navController.navigate("login") {
+                            // prevent from returning to main screen
+                            popUpTo(navController.graph.id) { inclusive = true }
+                            // lauch the screen in single top mode so that it is not recreated
+                            launchSingleTop = true
+                        }
+                    }
+                }
                 composable("medicine") { MedicineScreen(medicineViewModel) }
+                composable("login") {
+                    SignInScreen(
+                        navigateToMedicineScreen =
+                            {
+                                navController.navigate("aisle") {
+                                    // prevent from returning to login screen
+                                    popUpTo("login") { inclusive = true }
+                                    // lauch the screen in single top mode so that it is not recreated
+                                    launchSingleTop = true
+                                }
+                            })
+                }
             }
         }
     }

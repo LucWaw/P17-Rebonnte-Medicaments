@@ -123,13 +123,12 @@ fun MedicineScreen(viewModel: MedicineViewModel = viewModel()) {
             },
         floatingActionButton = {
             FloatingActionButton(onClick = {
-
             }) {
                 Icon(Icons.Default.Add, contentDescription = "Add")
             }
         }
 
-        ) { paddingValues ->
+    ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
                 .padding(paddingValues)
