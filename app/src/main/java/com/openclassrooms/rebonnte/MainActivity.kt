@@ -6,10 +6,8 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -40,16 +38,16 @@ class MainActivity : ComponentActivity() {
         setContent {
             MyApp()
         }
-        //startBroadcastReceiver()//Create a Memory leak
+        //startBroadcastReceiver()
     }
 
     /*private fun startMyBroadcast() {
         val intent = Intent("com.rebonnte.ACTION_UPDATE")
         sendBroadcast(intent)
-        startBroadcastReceiver()
-    }
+        startBroadcastReceiver()//Create a Memory leak
+    }*/
 
-    private fun startBroadcastReceiver() {
+    /*private fun startBroadcastReceiver() {
         myBroadcastReceiver = MyBroadcastReceiver()
         val filter = IntentFilter().apply {
             addAction("com.rebonnte.ACTION_UPDATE")
@@ -88,8 +86,6 @@ fun MyApp() {
     val navController = rememberNavController()
     val medicineViewModel: MedicineViewModel = viewModel()
     val aisleViewModel: AisleViewModel = viewModel()
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val route = navBackStackEntry?.destination?.route
 
     RebonnteTheme {
         Scaffold(
@@ -107,17 +103,6 @@ fun MyApp() {
                         selected = currentRoute(navController) == "medicine",
                         onClick = { navController.navigate("medicine") }
                     )
-                }
-            },
-            floatingActionButton = {
-                FloatingActionButton(onClick = {
-                    if (route == "medicine") {
-                        medicineViewModel.addRandomMedicine(aisleViewModel.aisles.value)
-                    } else if (route == "aisle") {
-                        aisleViewModel.addRandomAisle()
-                    }
-                }) {
-                    Icon(Icons.Default.Add, contentDescription = "Add")
                 }
             }
         ) {
