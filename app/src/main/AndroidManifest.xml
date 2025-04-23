@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <application
+        android:name=".Rebonnte"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -13,16 +14,7 @@
         android:theme="@style/Theme.Rebonnte"
 
         tools:targetApi="31">
-        <activity
-            android:name=".ui.medicine.MedicineDetailActivity"
-            android:theme="@style/Theme.Rebonnte.ActionBar"
-            android:parentActivityName=".MainActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.aisle.AisleDetailActivity"
-            android:parentActivityName=".MainActivity"
-            android:theme="@style/Theme.Rebonnte.ActionBar"
-            android:exported="false" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true">

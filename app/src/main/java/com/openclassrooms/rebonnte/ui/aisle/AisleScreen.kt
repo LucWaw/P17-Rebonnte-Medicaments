@@ -25,12 +25,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.firebase.ui.auth.AuthUI
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AisleScreen(
-    viewModel: AisleViewModel,
+    viewModel: AisleViewModel = hiltViewModel(),
     navigateToLogin: () -> Unit,
     goToDetail: (String) -> Unit
 ) {

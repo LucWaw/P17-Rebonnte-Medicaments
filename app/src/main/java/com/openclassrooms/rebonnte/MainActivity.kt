@@ -19,7 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -35,7 +35,9 @@ import com.openclassrooms.rebonnte.ui.medicine.MedicineDetailScreen
 import com.openclassrooms.rebonnte.ui.medicine.MedicineScreen
 import com.openclassrooms.rebonnte.ui.medicine.MedicineViewModel
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     //private lateinit var myBroadcastReceiver: MyBroadcastReceiver
@@ -92,8 +94,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MyApp() {
     val navController = rememberNavController()
-    val medicineViewModel: MedicineViewModel = viewModel()
-    val aisleViewModel: AisleViewModel = viewModel()
+    val medicineViewModel: MedicineViewModel = hiltViewModel()
+    val aisleViewModel: AisleViewModel = hiltViewModel()
 
     val route = currentRoute(navController)
 
@@ -183,7 +185,10 @@ fun MyApp() {
                             })
                 }
                 composable("medicineDetail/{medicineName}") { backStackEntry ->
-                    Log.d("NAVIGATION", "Navigating FROM: medicineDetail/${backStackEntry.arguments?.getString("medicineName")}")
+                    Log.d(
+                        "NAVIGATION",
+                        "Navigating FROM: medicineDetail/${backStackEntry.arguments?.getString("medicineName")}"
+                    )
 
                     val medicineName = backStackEntry.arguments?.getString("medicineName")
 

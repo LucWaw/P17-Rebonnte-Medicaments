@@ -3,12 +3,15 @@ package com.openclassrooms.rebonnte.ui.medicine
 import androidx.lifecycle.ViewModel
 import com.openclassrooms.rebonnte.ui.aisle.Aisle
 import com.openclassrooms.rebonnte.ui.history.History
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.util.Locale
 import java.util.Random
+import javax.inject.Inject
 
-class MedicineViewModel : ViewModel() {
+@HiltViewModel
+class MedicineViewModel @Inject constructor() : ViewModel() {
     private var _medicines = MutableStateFlow<MutableList<Medicine>>(mutableListOf())
     val medicines: StateFlow<List<Medicine>> get() = _medicines
 

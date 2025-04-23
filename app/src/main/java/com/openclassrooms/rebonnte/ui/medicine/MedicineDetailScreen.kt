@@ -30,13 +30,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.openclassrooms.rebonnte.ui.history.History
 import java.util.Date
 
 
 @Composable
-fun MedicineDetailScreen(name: String, viewModel: MedicineViewModel = viewModel()) {
+fun MedicineDetailScreen(name: String, viewModel: MedicineViewModel = hiltViewModel()) {
     val medicines by viewModel.medicines.collectAsState(initial = emptyList())
     val medicine = medicines.find { it.name == name } ?: return
     var stock by remember { mutableIntStateOf(medicine.stock) }

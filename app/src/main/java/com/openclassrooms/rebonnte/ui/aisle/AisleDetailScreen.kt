@@ -22,7 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.openclassrooms.rebonnte.ui.medicine.Medicine
 import com.openclassrooms.rebonnte.ui.medicine.MedicineViewModel
 
@@ -32,7 +32,7 @@ import com.openclassrooms.rebonnte.ui.medicine.MedicineViewModel
 fun AisleDetailScreen(
     name: String,
     navigateToMedicineDetail: (String) -> Unit,
-    viewModel: MedicineViewModel = viewModel()
+    viewModel: MedicineViewModel = hiltViewModel()
 ) {
     val medicines by viewModel.medicines.collectAsState(initial = emptyList())
     val filteredMedicines = medicines.filter { it.nameAisle == name }

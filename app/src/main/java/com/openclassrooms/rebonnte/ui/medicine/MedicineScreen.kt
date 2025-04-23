@@ -42,11 +42,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MedicineScreen(viewModel: MedicineViewModel = viewModel(), goToDetail: (String) -> Unit) {
+fun MedicineScreen(viewModel: MedicineViewModel = hiltViewModel(), goToDetail: (String) -> Unit) {
     val medicines by viewModel.medicines.collectAsState(initial = emptyList())
 
     Scaffold(
