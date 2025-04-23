@@ -1,22 +1,18 @@
 package com.openclassrooms.rebonnte.ui.medicine
 
 import androidx.lifecycle.ViewModel
-import com.openclassrooms.rebonnte.ui.aisle.Aisle
-import com.openclassrooms.rebonnte.ui.history.History
+import com.openclassrooms.rebonnte.repository.OrderFilter
+import com.openclassrooms.rebonnte.repository.StockRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import java.util.Locale
-import java.util.Random
 import javax.inject.Inject
 
 @HiltViewModel
-class MedicineViewModel @Inject constructor() : ViewModel() {
-    private var _medicines = MutableStateFlow<MutableList<Medicine>>(mutableListOf())
-    val medicines: StateFlow<List<Medicine>> get() = _medicines
+class MedicineViewModel @Inject constructor(stockRepository: StockRepository) :
+    ViewModel() {
+    var medicines = stockRepository.medicines(OrderFilter.NONE)
 
 
-    fun addToHistory(medicine: Medicine, history: History) {
+    /*fun addToHistory(medicine: Medicine, history: History) {
         val currentMedicines = ArrayList(medicines.value)
         val index = currentMedicines.indexOf(medicine)
         if (index != -1) {
@@ -24,13 +20,10 @@ class MedicineViewModel @Inject constructor() : ViewModel() {
             currentMedicines[index] = updatedMedicine
             _medicines.value = currentMedicines
         }
-    }
+    }*/
 
-    init {
-        _medicines.value = ArrayList() // Initialiser avec une liste vide
-    }
 
-    fun addRandomMedicine(aisles: List<Aisle>) {
+    /*fun addRandomMedicine(aisles: List<Aisle>) {
         val currentMedicines = ArrayList(medicines.value)
         currentMedicines.add(
             Medicine(
@@ -41,9 +34,9 @@ class MedicineViewModel @Inject constructor() : ViewModel() {
             )
         )
         _medicines.value = currentMedicines
-    }
+    }*/
 
-    fun filterByName(name: String) {
+    /*fun filterByName(name: String) {
         val currentMedicines: List<Medicine> = medicines.value
         val filteredMedicines: MutableList<Medicine> = ArrayList()
         for (medicine in currentMedicines) {
@@ -54,13 +47,13 @@ class MedicineViewModel @Inject constructor() : ViewModel() {
             }
         }
         _medicines.value = filteredMedicines
-    }
+    }*/
 
-    fun sortByNone() {
+    /*fun sortByNone() {
         _medicines.value = medicines.value.toMutableList() // Pas de tri
-    }
+    }*/
 
-    fun sortByName() {
+    /*fun sortByName() {
         val currentMedicines = ArrayList(medicines.value)
         currentMedicines.sortWith(Comparator.comparing(Medicine::name))
         _medicines.value = currentMedicines
@@ -70,6 +63,6 @@ class MedicineViewModel @Inject constructor() : ViewModel() {
         val currentMedicines = ArrayList(medicines.value)
         currentMedicines.sortWith(Comparator.comparingInt(Medicine::stock))
         _medicines.value = currentMedicines
-    }
+    }*/
 }
 

@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -27,6 +28,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.firebase.ui.auth.AuthUI
+import com.openclassrooms.rebonnte.domain.Aisle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,11 +58,11 @@ fun AisleScreen(
                 }) {
                     Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "Add")
                 }
-                /*FloatingActionButton(onClick = {
-                    viewModel.addRandomAisle()
+                FloatingActionButton(onClick = {
+                    //viewModel.addRandomAisle()
                 }) {
                     Icon(Icons.Default.Add, contentDescription = "Add")
-                }*/
+                }
             }
 
         }

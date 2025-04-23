@@ -1,5 +1,7 @@
 package com.openclassrooms.rebonnte.ui.medicine
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -31,10 +33,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.openclassrooms.rebonnte.ui.history.History
-import java.util.Date
+import com.openclassrooms.rebonnte.domain.History
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MedicineDetailScreen(name: String, viewModel: MedicineViewModel = hiltViewModel()) {
     val medicines by viewModel.medicines.collectAsState(initial = emptyList())
@@ -69,14 +74,14 @@ fun MedicineDetailScreen(name: String, viewModel: MedicineViewModel = hiltViewMo
             ) {
                 IconButton(onClick = {
                     if (stock > 0) {
-                        viewModel.addToHistory(
+                        /*viewModel.addToHistory(
                             medicine, History(
                                 medicine.name,
                                 "efeza56f1e65f",
-                                Date().toString(),
+                                System.currentTimeMillis(),
                                 "Updated medicine details"
                             )
-                        )
+                        )*/
 
                         stock--
                     }
@@ -94,14 +99,14 @@ fun MedicineDetailScreen(name: String, viewModel: MedicineViewModel = hiltViewMo
                     modifier = Modifier.weight(1f)
                 )
                 IconButton(onClick = {
-                    viewModel.addToHistory(
+                    /*viewModel.addToHistory(
                         medicine, History(
                             medicine.name,
                             "efeza56f1e65f",
-                            Date().toString(),
+                            System.currentTimeMillis(),
                             "Updated medicine details"
                         )
-                    )
+                    )*/
                     stock++
                 }) {
                     Icon(
@@ -122,8 +127,11 @@ fun MedicineDetailScreen(name: String, viewModel: MedicineViewModel = hiltViewMo
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HistoryItem(history: History) {
+    val formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.FRENCH)
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -133,7 +141,7 @@ fun HistoryItem(history: History) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = history.medicineName, fontWeight = FontWeight.Bold)
             Text(text = "User: ${history.userId}")
-            Text(text = "Date: ${history.date}")
+            Text(text = "Date: ${LocalDate.ofEpochDay(history.date).format(formatter)}")
             Text(text = "Details: ${history.details}")
         }
     }

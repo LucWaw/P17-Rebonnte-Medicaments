@@ -1,24 +1,20 @@
 package com.openclassrooms.rebonnte.ui.aisle
 
 import androidx.lifecycle.ViewModel
+import com.openclassrooms.rebonnte.repository.StockRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 @HiltViewModel
-class AisleViewModel @Inject constructor() : ViewModel() {
-    var _aisles = MutableStateFlow<List<Aisle>>(emptyList())
-    val aisles: StateFlow<List<Aisle>> get() = _aisles
+class AisleViewModel @Inject constructor(stockRepository: StockRepository) :
+    ViewModel() {
+    var aisles = stockRepository.aisles
 
-    init {
-        _aisles.value = listOf(Aisle("Main Aisle"))
-    }
 
-    fun addRandomAisle() {
+    /*fun addRandomAisle() {
         val currentAisles: MutableList<Aisle> = ArrayList(aisles.value)
         currentAisles.add(Aisle("Aisle " + (currentAisles.size + 1)))
         _aisles.value = currentAisles
-    }
+    }*/
 }
 

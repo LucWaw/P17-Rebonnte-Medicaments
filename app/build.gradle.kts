@@ -62,6 +62,7 @@ dependencies {
     implementation(libs.hilt.navigation.compose)
 
     // Firebase
+    implementation(libs.firebase.firestore)
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.crashlytics)
     implementation(libs.firebase.analytics)

@@ -17,12 +17,14 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -43,6 +45,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.openclassrooms.rebonnte.domain.Medicine
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,21 +81,21 @@ fun MedicineScreen(viewModel: MedicineViewModel = hiltViewModel(), goToDetail: (
                                     ) {
                                         DropdownMenuItem(
                                             onClick = {
-                                                viewModel.sortByNone()
+                                                //viewModel.sortByNone()
                                                 expanded = false
                                             },
                                             text = { Text("Sort by None") }
                                         )
                                         DropdownMenuItem(
                                             onClick = {
-                                                viewModel.sortByName()
+                                                //viewModel.sortByName()
                                                 expanded = false
                                             },
                                             text = { Text("Sort by Name") }
                                         )
                                         DropdownMenuItem(
                                             onClick = {
-                                                viewModel.sortByStock()
+                                                //viewModel.sortByStock()
                                                 expanded = false
                                             },
                                             text = { Text("Sort by Stock") }
@@ -106,7 +109,7 @@ fun MedicineScreen(viewModel: MedicineViewModel = hiltViewModel(), goToDetail: (
                     EmbeddedSearchBar(
                         query = searchQuery,
                         onQueryChange = {
-                            viewModel.filterByName(it)
+                            //viewModel.filterByName(it)
                             searchQuery = it
                         },
                         isSearchActive = isSearchActive,
@@ -116,10 +119,10 @@ fun MedicineScreen(viewModel: MedicineViewModel = hiltViewModel(), goToDetail: (
                 }
             },
         floatingActionButton = {
-            /*FloatingActionButton(onClick = {
+            FloatingActionButton(onClick = {
             }) {
                 Icon(Icons.Default.Add, contentDescription = "Add")
-            }*/
+            }
         }
 
     ) { paddingValues ->
@@ -138,6 +141,7 @@ fun MedicineScreen(viewModel: MedicineViewModel = hiltViewModel(), goToDetail: (
 
 
 }
+
 
 @Composable
 fun MedicineItem(medicine: Medicine, onClick: () -> Unit) {

@@ -1,16 +1,16 @@
 package com.openclassrooms.rebonnte
 
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -42,6 +42,7 @@ class MainActivity : ComponentActivity() {
 
     //private lateinit var myBroadcastReceiver: MyBroadcastReceiver
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mainActivity = this
@@ -90,6 +91,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyApp() {
@@ -97,7 +99,6 @@ fun MyApp() {
     val medicineViewModel: MedicineViewModel = hiltViewModel()
     val aisleViewModel: AisleViewModel = hiltViewModel()
 
-    val route = currentRoute(navController)
 
 
     RebonnteTheme {
@@ -119,19 +120,7 @@ fun MyApp() {
                         onClick = { navController.navigate("medicine") }
                     )
                 }
-            },
-            floatingActionButton =
-                {
-                    FloatingActionButton(onClick = {
-                        if (route == "aisle") {
-                            aisleViewModel.addRandomAisle()
-                        } else {
-                            medicineViewModel.addRandomMedicine(aisleViewModel.aisles.value)
-                        }
-                    }) {
-                        Icon(Icons.Default.Add, contentDescription = "Add")
-                    }
-                }
+            }
         ) {
             NavHost(
                 modifier = Modifier.padding(it),
