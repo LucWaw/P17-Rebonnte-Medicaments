@@ -1,6 +1,8 @@
 package com.openclassrooms.rebonnte.repository
 
+import com.google.android.gms.tasks.Task
 import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.snapshots
 import com.openclassrooms.rebonnte.domain.Aisle
@@ -74,7 +76,7 @@ class FirebaseApi {
                 val medicineList = documents.map { document ->
                     // Conversion du document Firestore en objet Medicine, avec récupération de l'ID
                     val medicine =
-                        document.toObject(Medicine::class.java)!!.copy(name = document.id)
+                        document.toObject(Medicine::class.java)!!.copy(id = document.id)
 
                     // Récupération de la sous-collection "History" pour ce médicament
                     val histories = getHistoriesForMedicine(document.id)
@@ -102,5 +104,26 @@ class FirebaseApi {
             .toObjects(History::class.java)
     }
 
+    fun addAisle(nameAisle : String){
+        val aisle = Aisle(nameAisle)
+        getAisleCollection().add(aisle)
+    }
+
+    fun addMedicine(medicine: Medicine) {
+        getMedecineCollection().add(medicine)
+    }
+
+    fun addHistory(medicineId: String, history: History): Task<DocumentReference?> {
+        return getMedecineCollection()
+            .document(medicineId)
+            .collection("history")
+            .add(history)
+    }
+
+    fun modifyMedicine(medicineId: String, stock: Int) {
+        getMedecineCollection()
+            .document(medicineId)
+            .update("stock", stock)
+    }
 
 }

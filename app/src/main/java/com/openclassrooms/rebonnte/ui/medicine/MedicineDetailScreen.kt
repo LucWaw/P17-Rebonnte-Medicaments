@@ -23,6 +23,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -34,7 +35,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.openclassrooms.rebonnte.domain.History
-import java.time.LocalDate
+import java.time.Instant
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -42,9 +44,16 @@ import java.util.Locale
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MedicineDetailScreen(name: String, viewModel: MedicineViewModel = hiltViewModel()) {
-    val medicines by viewModel.medicines.collectAsState(initial = emptyList())
-    val medicine = medicines.find { it.name == name } ?: return
-    var stock by remember { mutableIntStateOf(medicine.stock) }
+    LaunchedEffect(key1 = name) {
+        viewModel.loadMedicine(name)
+    }
+    val medicine by viewModel.selectedMedicine.collectAsState(initial = null)
+    if (medicine == null) {
+        Text("Chargement du médicament...")
+
+        return
+    }
+    var stock by remember { mutableIntStateOf(medicine!!.stock) }
 
     Scaffold { paddingValues ->
         Column(
@@ -53,7 +62,7 @@ fun MedicineDetailScreen(name: String, viewModel: MedicineViewModel = hiltViewMo
                 .padding(16.dp)
         ) {
             TextField(
-                value = medicine.name,
+                value = medicine!!.name,
                 onValueChange = {},
                 label = { Text("Name") },
                 enabled = false,
@@ -61,7 +70,7 @@ fun MedicineDetailScreen(name: String, viewModel: MedicineViewModel = hiltViewMo
             )
             Spacer(modifier = Modifier.height(8.dp))
             TextField(
-                value = medicine.nameAisle,
+                value = medicine!!.nameAisle,
                 onValueChange = {},
                 label = { Text("Aisle") },
                 enabled = false,
@@ -74,14 +83,20 @@ fun MedicineDetailScreen(name: String, viewModel: MedicineViewModel = hiltViewMo
             ) {
                 IconButton(onClick = {
                     if (stock > 0) {
-                        /*viewModel.addToHistory(
-                            medicine, History(
-                                medicine.name,
+                        viewModel.modifyMedicine(
+                            medicine!!.id,
+                            stock - 1
+                        )
+                        viewModel.addToHistory(
+                            medicine!!.id,
+                            medicine!!.name,
+                            History(
+                                medicine!!.name,
                                 "efeza56f1e65f",
                                 System.currentTimeMillis(),
                                 "Updated medicine details"
                             )
-                        )*/
+                        )
 
                         stock--
                     }
@@ -99,14 +114,19 @@ fun MedicineDetailScreen(name: String, viewModel: MedicineViewModel = hiltViewMo
                     modifier = Modifier.weight(1f)
                 )
                 IconButton(onClick = {
-                    /*viewModel.addToHistory(
-                        medicine, History(
-                            medicine.name,
+                    viewModel.modifyMedicine(
+                        medicine!!.id,
+                        stock + 1
+                    )
+                    viewModel.addToHistory(
+                        medicine!!.id, medicine!!.name,
+                        History(
+                            medicine!!.name,
                             "efeza56f1e65f",
                             System.currentTimeMillis(),
                             "Updated medicine details"
                         )
-                    )*/
+                    )
                     stock++
                 }) {
                     Icon(
@@ -119,7 +139,7 @@ fun MedicineDetailScreen(name: String, viewModel: MedicineViewModel = hiltViewMo
             Text(text = "History", style = MaterialTheme.typography.titleLarge)
             Spacer(modifier = Modifier.height(8.dp))
             LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(medicine.histories) { history ->
+                items(medicine!!.histories) { history ->
                     HistoryItem(history = history)
                 }
             }
@@ -131,6 +151,9 @@ fun MedicineDetailScreen(name: String, viewModel: MedicineViewModel = hiltViewMo
 @Composable
 fun HistoryItem(history: History) {
     val formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.FRENCH)
+    val instant = Instant.ofEpochMilli(history.date)
+    val date = instant.atZone(ZoneId.systemDefault()).toLocalDate()
+
 
     Card(
         modifier = Modifier
@@ -141,7 +164,7 @@ fun HistoryItem(history: History) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = history.medicineName, fontWeight = FontWeight.Bold)
             Text(text = "User: ${history.userId}")
-            Text(text = "Date: ${LocalDate.ofEpochDay(history.date).format(formatter)}")
+            Text(text = "Date: ${date.format(formatter)}")
             Text(text = "Details: ${history.details}")
         }
     }

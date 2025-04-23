@@ -31,9 +31,11 @@ import com.openclassrooms.rebonnte.ui.account.SignInScreen
 import com.openclassrooms.rebonnte.ui.aisle.AisleDetailScreen
 import com.openclassrooms.rebonnte.ui.aisle.AisleScreen
 import com.openclassrooms.rebonnte.ui.aisle.AisleViewModel
+import com.openclassrooms.rebonnte.ui.aisle.add.AddAisleScreen
 import com.openclassrooms.rebonnte.ui.medicine.MedicineDetailScreen
 import com.openclassrooms.rebonnte.ui.medicine.MedicineScreen
 import com.openclassrooms.rebonnte.ui.medicine.MedicineViewModel
+import com.openclassrooms.rebonnte.ui.medicine.add.AddMedicineScreen
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -137,6 +139,13 @@ fun MyApp() {
                                     launchSingleTop = true
                                 }
                             },
+                        addAisle =
+                            {
+                                navController.navigate("addAisle"){
+                                    // launch the screen in single top mode so that it is not recreated
+                                    launchSingleTop = true
+                                }
+                            },
                         navigateToLogin =
                             {
                                 navController.navigate("login") {
@@ -151,6 +160,13 @@ fun MyApp() {
                 composable("medicine") {
                     MedicineScreen(
                         viewModel = medicineViewModel,
+                        addMedicine =
+                            {
+                                navController.navigate("addMedicine") {
+                                    // launch the screen in single top mode so that it is not recreated
+                                    launchSingleTop = true
+                                }
+                            },
                         goToDetail = { nameMedicine ->
                             Log.d("NAVIGATION", "Navigating to: medicineDetail/$nameMedicine")
 
@@ -204,6 +220,28 @@ fun MyApp() {
                                 }
                         )
                     }
+                }
+                composable("addAisle") {
+                    AddAisleScreen(
+                        onValidate =
+                            {
+                                navController.navigate("aisle") {
+                                    // launch the screen in single top mode so that it is not recreated
+                                    launchSingleTop = true
+                                }
+                            }
+                    )
+                }
+                composable("addMedicine") {
+                    AddMedicineScreen(
+                        onValidate =
+                            {
+                                navController.navigate("medicine") {
+                                    // launch the screen in single top mode so that it is not recreated
+                                    launchSingleTop = true
+                                }
+                            }
+                    )
                 }
             }
         }

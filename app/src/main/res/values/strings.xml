@@ -6,4 +6,5 @@
     <string name="unknow_error">An unknown error occurred.</string>
     <string name="SuccessfulConnexion">Successful Connexion</string>
     <string name="error">Error Icon</string>
+    <string name="validate">Validate</string>
 </resources>

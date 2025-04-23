@@ -34,6 +34,7 @@ import com.openclassrooms.rebonnte.domain.Aisle
 @Composable
 fun AisleScreen(
     viewModel: AisleViewModel = hiltViewModel(),
+    addAisle: () -> Unit,
     navigateToLogin: () -> Unit,
     goToDetail: (String) -> Unit
 ) {
@@ -59,7 +60,7 @@ fun AisleScreen(
                     Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "Add")
                 }
                 FloatingActionButton(onClick = {
-                    //viewModel.addRandomAisle()
+                    addAisle()
                 }) {
                     Icon(Icons.Default.Add, contentDescription = "Add")
                 }

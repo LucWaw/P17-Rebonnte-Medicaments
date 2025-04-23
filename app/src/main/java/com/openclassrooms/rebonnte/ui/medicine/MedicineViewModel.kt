@@ -1,16 +1,44 @@
 package com.openclassrooms.rebonnte.ui.medicine
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.openclassrooms.rebonnte.domain.History
+import com.openclassrooms.rebonnte.domain.Medicine
 import com.openclassrooms.rebonnte.repository.OrderFilter
 import com.openclassrooms.rebonnte.repository.StockRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MedicineViewModel @Inject constructor(stockRepository: StockRepository) :
+class MedicineViewModel @Inject constructor(private val stockRepository: StockRepository) :
     ViewModel() {
     var medicines = stockRepository.medicines(OrderFilter.NONE)
+    private val _selectedMedicine = MutableStateFlow<Medicine?>(null)
+    val selectedMedicine: StateFlow<Medicine?> = _selectedMedicine
 
+    fun loadMedicine(name: String) {
+        viewModelScope.launch {
+            stockRepository.medicines(OrderFilter.NONE)
+                .map { list -> list.find { it.name == name } }
+                .collect { _selectedMedicine.value = it }
+        }
+    }
+
+    fun modifyMedicine(medicineId: String, stock: Int) {
+        stockRepository.modifyMedicine(medicineId, stock)
+    }
+
+    fun addToHistory(medicineId: String,medicineName : String, history: History) {
+        viewModelScope.launch {
+            stockRepository.addHistory(medicineId, history).addOnSuccessListener {
+                loadMedicine(medicineName) // recharge le medoc avec les nouveaux historiques
+            }
+        }
+    }
 
     /*fun addToHistory(medicine: Medicine, history: History) {
         val currentMedicines = ArrayList(medicines.value)

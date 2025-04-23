@@ -7,4 +7,5 @@
     <string name="unknow_error">Une erreur inconnue s\'est produite.</string>
     <string name="SuccessfulConnexion">Connexion Réussie</string>
     <string name="error">Icone D\'erreur</string>
+    <string name="validate">Valider</string>
 </resources>

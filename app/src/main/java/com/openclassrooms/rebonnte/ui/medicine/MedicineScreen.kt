@@ -49,7 +49,11 @@ import com.openclassrooms.rebonnte.domain.Medicine
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MedicineScreen(viewModel: MedicineViewModel = hiltViewModel(), goToDetail: (String) -> Unit) {
+fun MedicineScreen(
+    viewModel: MedicineViewModel = hiltViewModel(),
+    goToDetail: (String) -> Unit,
+    addMedicine: () -> Unit
+) {
     val medicines by viewModel.medicines.collectAsState(initial = emptyList())
 
     Scaffold(
@@ -120,6 +124,7 @@ fun MedicineScreen(viewModel: MedicineViewModel = hiltViewModel(), goToDetail: (
             },
         floatingActionButton = {
             FloatingActionButton(onClick = {
+                addMedicine()
             }) {
                 Icon(Icons.Default.Add, contentDescription = "Add")
             }
