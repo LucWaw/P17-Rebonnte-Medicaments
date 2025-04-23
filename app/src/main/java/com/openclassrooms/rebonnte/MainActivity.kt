@@ -1,6 +1,7 @@
 package com.openclassrooms.rebonnte
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.padding
@@ -27,8 +28,10 @@ import androidx.navigation.compose.rememberNavController
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.openclassrooms.rebonnte.ui.account.SignInScreen
+import com.openclassrooms.rebonnte.ui.aisle.AisleDetailScreen
 import com.openclassrooms.rebonnte.ui.aisle.AisleScreen
 import com.openclassrooms.rebonnte.ui.aisle.AisleViewModel
+import com.openclassrooms.rebonnte.ui.medicine.MedicineDetailScreen
 import com.openclassrooms.rebonnte.ui.medicine.MedicineScreen
 import com.openclassrooms.rebonnte.ui.medicine.MedicineViewModel
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
@@ -135,17 +138,38 @@ fun MyApp() {
             ) {
                 composable("aisle") {
                     AisleScreen(
-                        aisleViewModel
-                    ) {
-                        navController.navigate("login") {
-                            // prevent from returning to main screen
-                            popUpTo(navController.graph.id) { inclusive = true }
-                            // lauch the screen in single top mode so that it is not recreated
-                            launchSingleTop = true
-                        }
-                    }
+                        viewModel = aisleViewModel,
+                        goToDetail =
+                            {
+                                navController.navigate("aisleDetail/${it}") {
+                                    // launch the screen in single top mode so that it is not recreated
+                                    launchSingleTop = true
+                                }
+                            },
+                        navigateToLogin =
+                            {
+                                navController.navigate("login") {
+                                    // prevent from returning to main screen
+                                    popUpTo(navController.graph.id) { inclusive = true }
+                                    // launch the screen in single top mode so that it is not recreated
+                                    launchSingleTop = true
+                                }
+                            }
+                    )
                 }
-                composable("medicine") { MedicineScreen(medicineViewModel) }
+                composable("medicine") {
+                    MedicineScreen(
+                        viewModel = medicineViewModel,
+                        goToDetail = { nameMedicine ->
+                            Log.d("NAVIGATION", "Navigating to: medicineDetail/$nameMedicine")
+
+                            navController.navigate("medicineDetail/${nameMedicine}") {
+                                // launch the screen in single top mode so that it is not recreated
+                                launchSingleTop = true
+                            }
+                        }
+                    )
+                }
                 composable("login") {
                     SignInScreen(
                         navigateToMedicineScreen =
@@ -153,10 +177,39 @@ fun MyApp() {
                                 navController.navigate("aisle") {
                                     // prevent from returning to login screen
                                     popUpTo("login") { inclusive = true }
-                                    // lauch the screen in single top mode so that it is not recreated
+                                    // launch the screen in single top mode so that it is not recreated
                                     launchSingleTop = true
                                 }
                             })
+                }
+                composable("medicineDetail/{medicineName}") { backStackEntry ->
+                    Log.d("NAVIGATION", "Navigating FROM: medicineDetail/${backStackEntry.arguments?.getString("medicineName")}")
+
+                    val medicineName = backStackEntry.arguments?.getString("medicineName")
+
+                    if (medicineName != null) {
+                        MedicineDetailScreen(
+                            viewModel = medicineViewModel,
+                            name = medicineName,
+                        )
+                    }
+
+                }
+                composable("aisleDetail/{aisleName}") { backStackEntry ->
+                    val aisleName = backStackEntry.arguments?.getString("aisleName")
+                    if (aisleName != null) {
+                        AisleDetailScreen(
+                            viewModel = medicineViewModel,
+                            name = aisleName,
+                            navigateToMedicineDetail =
+                                { name ->
+                                    navController.navigate("medicineDetail/${name}") {
+                                        // launch the screen in single top mode so that it is not recreated
+                                        launchSingleTop = true
+                                    }
+                                }
+                        )
+                    }
                 }
             }
         }

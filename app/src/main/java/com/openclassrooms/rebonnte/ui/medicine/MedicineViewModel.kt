@@ -2,14 +2,26 @@ package com.openclassrooms.rebonnte.ui.medicine
 
 import androidx.lifecycle.ViewModel
 import com.openclassrooms.rebonnte.ui.aisle.Aisle
+import com.openclassrooms.rebonnte.ui.history.History
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.util.Locale
 import java.util.Random
 
 class MedicineViewModel : ViewModel() {
-    var _medicines = MutableStateFlow<MutableList<Medicine>>(mutableListOf())
+    private var _medicines = MutableStateFlow<MutableList<Medicine>>(mutableListOf())
     val medicines: StateFlow<List<Medicine>> get() = _medicines
+
+
+    fun addToHistory(medicine: Medicine, history: History) {
+        val currentMedicines = ArrayList(medicines.value)
+        val index = currentMedicines.indexOf(medicine)
+        if (index != -1) {
+            val updatedMedicine = currentMedicines[index].copy(histories = currentMedicines[index].histories + history)
+            currentMedicines[index] = updatedMedicine
+            _medicines.value = currentMedicines
+        }
+    }
 
     init {
         _medicines.value = ArrayList() // Initialiser avec une liste vide

@@ -1,8 +1,5 @@
 package com.openclassrooms.rebonnte.ui.medicine
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -33,28 +30,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModelProvider
-import com.openclassrooms.rebonnte.MainActivity
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.openclassrooms.rebonnte.ui.history.History
-import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 import java.util.Date
 
-class MedicineDetailActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        val name = intent.getStringExtra("nameMedicine") ?: "Unknown"
-        val viewModel = ViewModelProvider(MainActivity.mainActivity)[MedicineViewModel::class.java]
-
-        setContent {
-            RebonnteTheme {
-                MedicineDetailScreen(name, viewModel)
-            }
-        }
-    }
-}
 
 @Composable
-fun MedicineDetailScreen(name: String, viewModel: MedicineViewModel) {
+fun MedicineDetailScreen(name: String, viewModel: MedicineViewModel = viewModel()) {
     val medicines by viewModel.medicines.collectAsState(initial = emptyList())
     val medicine = medicines.find { it.name == name } ?: return
     var stock by remember { mutableIntStateOf(medicine.stock) }
@@ -87,15 +69,15 @@ fun MedicineDetailScreen(name: String, viewModel: MedicineViewModel) {
             ) {
                 IconButton(onClick = {
                     if (stock > 0) {
-                        medicine.histories.toMutableList()
-                            .add( //Can't work : toMutableList() returns new list
-                                History(
-                                    medicine.name,
-                                    "efeza56f1e65f",
-                                    Date().toString(),
-                                    "Updated medicine details"
-                                )
+                        viewModel.addToHistory(
+                            medicine, History(
+                                medicine.name,
+                                "efeza56f1e65f",
+                                Date().toString(),
+                                "Updated medicine details"
                             )
+                        )
+
                         stock--
                     }
                 }) {
@@ -112,15 +94,14 @@ fun MedicineDetailScreen(name: String, viewModel: MedicineViewModel) {
                     modifier = Modifier.weight(1f)
                 )
                 IconButton(onClick = {
-                    medicine.histories.toMutableList()
-                        .add( //Can't work : toMutableList() returns new list
-                            History(
-                                medicine.name,
-                                "efeza56f1e65f",
-                                Date().toString(),
-                                "Updated medicine details"
-                            )
+                    viewModel.addToHistory(
+                        medicine, History(
+                            medicine.name,
+                            "efeza56f1e65f",
+                            Date().toString(),
+                            "Updated medicine details"
                         )
+                    )
                     stock++
                 }) {
                     Icon(

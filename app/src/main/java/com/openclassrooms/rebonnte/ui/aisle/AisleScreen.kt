@@ -1,7 +1,5 @@
 package com.openclassrooms.rebonnte.ui.aisle
 
-import android.content.Context
-import android.content.Intent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -31,9 +29,12 @@ import com.firebase.ui.auth.AuthUI
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AisleScreen(viewModel: AisleViewModel, navigateToLogin: () -> Unit) {
+fun AisleScreen(
+    viewModel: AisleViewModel,
+    navigateToLogin: () -> Unit,
+    goToDetail: (String) -> Unit
+) {
     val aisles by viewModel.aisles.collectAsState(initial = emptyList())
-    val context = LocalContext.current
 
     Scaffold(
         topBar =
@@ -70,7 +71,7 @@ fun AisleScreen(viewModel: AisleViewModel, navigateToLogin: () -> Unit) {
         ) {
             items(aisles) { aisle ->
                 AisleItem(aisle = aisle, onClick = {
-                    startDetailActivity(context, aisle.name)
+                    goToDetail(aisle.name)
                 })
             }
         }
@@ -95,9 +96,3 @@ fun AisleItem(aisle: Aisle, onClick: () -> Unit) {
     }
 }
 
-private fun startDetailActivity(context: Context, name: String) {
-    val intent = Intent(context, AisleDetailActivity::class.java).apply {
-        putExtra("nameAisle", name)
-    }
-    context.startActivity(intent)
-}

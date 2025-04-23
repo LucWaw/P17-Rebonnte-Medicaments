@@ -1,7 +1,5 @@
 package com.openclassrooms.rebonnte.ui.medicine
 
-import android.content.Context
-import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -42,16 +40,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MedicineScreen(viewModel: MedicineViewModel = viewModel()) {
+fun MedicineScreen(viewModel: MedicineViewModel = viewModel(), goToDetail: (String) -> Unit) {
     val medicines by viewModel.medicines.collectAsState(initial = emptyList())
-    val context = LocalContext.current
 
     Scaffold(
         topBar =
@@ -134,7 +130,7 @@ fun MedicineScreen(viewModel: MedicineViewModel = viewModel()) {
         ) {
             items(medicines) { medicine ->
                 MedicineItem(medicine = medicine, onClick = {
-                    startDetailActivity(context, medicine.name)
+                    goToDetail(medicine.name)
                 })
             }
         }
@@ -163,12 +159,6 @@ fun MedicineItem(medicine: Medicine, onClick: () -> Unit) {
     }
 }
 
-private fun startDetailActivity(context: Context, name: String) {
-    val intent = Intent(context, MedicineDetailActivity::class.java).apply {
-        putExtra("nameMedicine", name)
-    }
-    context.startActivity(intent)
-}
 
 @Composable
 fun EmbeddedSearchBar(
