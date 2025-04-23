@@ -14,7 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -28,6 +28,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.openclassrooms.rebonnte.MainActivity
 import com.openclassrooms.rebonnte.ui.medicine.Medicine
 import com.openclassrooms.rebonnte.ui.medicine.MedicineDetailActivity
@@ -49,7 +50,7 @@ class AisleDetailActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AisleDetailScreen(name: String, viewModel: MedicineViewModel) {
+fun AisleDetailScreen(name: String, viewModel: MedicineViewModel = viewModel()) {
     val medicines by viewModel.medicines.collectAsState(initial = emptyList())
     val filteredMedicines = medicines.filter { it.nameAisle == name }
     val context = LocalContext.current
@@ -84,6 +85,9 @@ fun MedicineItem(medicine: Medicine, onClick: (String) -> Unit) {
             Text(text = medicine.name, fontWeight = FontWeight.Bold)
             Text(text = "Stock: ${medicine.stock}", color = Color.Gray)
         }
-        Icon(imageVector = Icons.Default.KeyboardArrowRight, contentDescription = "Arrow")
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+            contentDescription = "Arrow"
+        )
     }
 }

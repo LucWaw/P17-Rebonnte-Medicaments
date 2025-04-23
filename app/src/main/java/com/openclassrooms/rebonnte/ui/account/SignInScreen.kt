@@ -6,14 +6,9 @@ import android.content.Intent
 import android.widget.Toast
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -23,8 +18,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.ErrorCodes
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
@@ -34,14 +27,12 @@ import com.openclassrooms.rebonnte.R
 
 @Composable
 fun SignInScreen(
-    modifier: Modifier = Modifier,
-    navigateToMedicineScreen: () -> Unit
+    modifier: Modifier = Modifier, navigateToMedicineScreen: () -> Unit
 ) {
     var retry by remember { mutableStateOf(false) }
     if (retry == false) {
         Box(
-            modifier = modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
+            modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center
         ) {
             CircularProgressIndicator()
         }
@@ -65,17 +56,11 @@ fun SignInScreen(
 
         }
 
-
-
-
     LaunchedEffect(Unit) {
 
         if (FirebaseAuth.getInstance().currentUser == null && !isConnected) {
-
             signIn(launcher)
-
         }
-
     }
 
     if (FirebaseAuth.getInstance().currentUser != null || isConnected) {
@@ -83,14 +68,9 @@ fun SignInScreen(
     } else {
 
         if (retry) {
-            Column(modifier.fillMaxSize().padding(80.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                Text(stringResource(R.string.cannot_access_if_not_logged_in))
-                Button(onClick = {
-                    retry = false
-                    signIn(launcher)
-                }) {
-                    Text(stringResource(R.string.retry_login))
-                }
+            ErrorState {
+                retry = false
+                signIn(launcher)
             }
 
         }
@@ -98,17 +78,15 @@ fun SignInScreen(
     }
 }
 
+
 private fun signIn(launcher: ManagedActivityResultLauncher<Intent, FirebaseAuthUIAuthenticationResult>) {
     val providers = listOf(
         AuthUI.IdpConfig.EmailBuilder().build(),
     )
 
-    val signInIntent = AuthUI.getInstance()
-        .createSignInIntentBuilder()
-        .setTheme(R.style.theme_SignIn)
-        .setAvailableProviders(providers)
-        .setLogo(R.mipmap.ic_launcher)
-        .build()
+    val signInIntent =
+        AuthUI.getInstance().createSignInIntentBuilder().setTheme(R.style.theme_SignIn)
+            .setAvailableProviders(providers).setLogo(R.mipmap.ic_launcher).build()
 
     launcher.launch(signInIntent)
 

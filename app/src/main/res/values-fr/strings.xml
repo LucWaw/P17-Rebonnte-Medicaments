@@ -6,4 +6,5 @@
     <string name="network_error">Erreur de réseau, vérifiez votre connexion Internet.</string>
     <string name="unknow_error">Une erreur inconnue s\'est produite.</string>
     <string name="SuccessfulConnexion">Connexion Réussie</string>
+    <string name="error">Icone D\'erreur</string>
 </resources>

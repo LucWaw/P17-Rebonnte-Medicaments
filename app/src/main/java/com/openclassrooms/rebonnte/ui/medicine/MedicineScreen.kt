@@ -19,14 +19,12 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -122,10 +120,10 @@ fun MedicineScreen(viewModel: MedicineViewModel = viewModel()) {
                 }
             },
         floatingActionButton = {
-            FloatingActionButton(onClick = {
+            /*FloatingActionButton(onClick = {
             }) {
                 Icon(Icons.Default.Add, contentDescription = "Add")
-            }
+            }*/
         }
 
     ) { paddingValues ->

@@ -6,8 +6,10 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -90,6 +92,9 @@ fun MyApp() {
     val medicineViewModel: MedicineViewModel = viewModel()
     val aisleViewModel: AisleViewModel = viewModel()
 
+    val route = currentRoute(navController)
+
+
     RebonnteTheme {
         Scaffold(
             bottomBar = {
@@ -109,7 +114,19 @@ fun MyApp() {
                         onClick = { navController.navigate("medicine") }
                     )
                 }
-            }
+            },
+            floatingActionButton =
+                {
+                    FloatingActionButton(onClick = {
+                        if (route == "aisle") {
+                            aisleViewModel.addRandomAisle()
+                        } else {
+                            medicineViewModel.addRandomMedicine(aisleViewModel.aisles.value)
+                        }
+                    }) {
+                        Icon(Icons.Default.Add, contentDescription = "Add")
+                    }
+                }
         ) {
             NavHost(
                 modifier = Modifier.padding(it),
