@@ -39,8 +39,10 @@ fun SignInScreen(
     }
 
 
-    var isConnected by remember { mutableStateOf(false) }
+    var isConnected by remember { mutableStateOf(FirebaseAuth.getInstance().currentUser!=null) }
     val context = LocalContext.current
+
+
 
     val launcher =
         rememberLauncherForActivityResult(FirebaseAuthUIActivityResultContract()) { result ->
@@ -58,12 +60,12 @@ fun SignInScreen(
 
     LaunchedEffect(Unit) {
 
-        if (FirebaseAuth.getInstance().currentUser == null && !isConnected) {
+        if (!isConnected) {
             signIn(launcher)
         }
     }
 
-    if (FirebaseAuth.getInstance().currentUser != null || isConnected) {
+    if (isConnected) {
         navigateToMedicineScreen()
     } else {
 

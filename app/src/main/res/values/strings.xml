@@ -7,7 +7,12 @@
     <string name="SuccessfulConnexion">Successful Connexion</string>
     <string name="error">Error Icon</string>
     <string name="valid_modifications">Validate Modifications</string>
+    <string name="my_account_fragment_label">My account</string>
+    <string name="logout">Sign out</string>
+    <string name="delete_account">Delete account</string>
+    <string name="popup_message_confirmation_delete_account">Are you sure you want to delete your account?</string>
     <string name="go_back">Go back</string>
+    <string name="contentDescription_notification_icon">Icone de notification</string>
     <string name="delete_medicine">Delete medicine</string>
     <string name="popup_message_confirmation_delete_medicine">Delete the medicine? All history will also be deleted.</string>
     <string name="popup_message_choice_yes">Yes</string>

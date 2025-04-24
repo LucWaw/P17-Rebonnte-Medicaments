@@ -9,6 +9,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -19,7 +20,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -32,12 +32,11 @@ import com.google.firebase.auth.auth
 import com.openclassrooms.rebonnte.ui.account.SignInScreen
 import com.openclassrooms.rebonnte.ui.aisle.AisleDetailScreen
 import com.openclassrooms.rebonnte.ui.aisle.AisleScreen
-import com.openclassrooms.rebonnte.ui.aisle.AisleViewModel
 import com.openclassrooms.rebonnte.ui.aisle.add.AddAisleScreen
 import com.openclassrooms.rebonnte.ui.medicine.MedicineScreen
-import com.openclassrooms.rebonnte.ui.medicine.MedicineViewModel
 import com.openclassrooms.rebonnte.ui.medicine.add.AddMedicineScreen
 import com.openclassrooms.rebonnte.ui.medicine.detail.MedicineDetailScreen
+import com.openclassrooms.rebonnte.ui.profile.ProfileScreen
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -100,8 +99,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MyApp() {
     val navController = rememberNavController()
-    val medicineViewModel: MedicineViewModel = hiltViewModel()
-    val aisleViewModel: AisleViewModel = hiltViewModel()
+
 
 
 
@@ -123,6 +121,13 @@ fun MyApp() {
                         selected = currentRoute(navController) == "medicine",
                         onClick = { navController.navigate("medicine") }
                     )
+                    NavigationBarItem(
+                        icon = { Icon(Icons.Filled.AccountCircle, contentDescription = null) },
+                        enabled = Firebase.auth.currentUser != null,
+                        label = { Text("Account") },
+                        selected = currentRoute(navController) == "profile",
+                        onClick = { navController.navigate("profile") }
+                    )
                 }
             }
         ) {
@@ -133,7 +138,6 @@ fun MyApp() {
             ) {
                 composable("aisle") {
                     AisleScreen(
-                        viewModel = aisleViewModel,
                         goToDetail =
                             {
                                 navController.navigate("aisleDetail/${it}") {
@@ -161,7 +165,6 @@ fun MyApp() {
                 }
                 composable("medicine") {
                     MedicineScreen(
-                        viewModel = medicineViewModel,
                         addMedicine =
                             {
                                 navController.navigate("addMedicine") {
@@ -213,7 +216,6 @@ fun MyApp() {
                     val aisleName = backStackEntry.arguments?.getString("aisleName")
                     if (aisleName != null) {
                         AisleDetailScreen(
-                            viewModel = medicineViewModel,
                             name = aisleName,
                             navigateToMedicineDetail =
                                 { id ->
@@ -245,6 +247,18 @@ fun MyApp() {
                                     launchSingleTop = true
                                 }
                             }
+                    )
+                }
+                composable("profile") {
+                    ProfileScreen(
+                        onLogoutClick = {
+                            navController.navigate("login") {
+                                // prevent from returning to main screen
+                                popUpTo(navController.graph.id) { inclusive = true }
+                                // launch the screen in single top mode so that it is not recreated
+                                launchSingleTop = true
+                            }
+                        }
                     )
                 }
             }

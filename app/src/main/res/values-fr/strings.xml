@@ -22,6 +22,11 @@
     <string name="aisle_from_to">allée de %1$s à %2$s</string>
     <string name="stock_from_to">stock de %1$d à %2$d</string>
     <string name="modification_of">"Modification de"</string>
+    <string name="my_account_fragment_label">Mon compte</string>
+    <string name="logout">Se déconnecter</string>
+    <string name="delete_account">Supprimer le compte</string>
+    <string name="popup_message_confirmation_delete_account">Êtes-vous sûr de vouloir supprimer votre compte ?</string>
+    <string name="contentDescription_notification_icon">Icône de notification</string>
     <string name="you_haven_t_modified_anything">Vous n\'avez rien modifié</string>
     <string name="error_medicine_name">Le nom du médicament ne peut pas être vide.</string>
     <string name="error_medicine_aisle">Veuillez sélectionner une allée.</string>
