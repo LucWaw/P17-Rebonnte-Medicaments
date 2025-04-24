@@ -17,4 +17,9 @@
     <string name="delete_error_database">Erreur lors de la suppression du médicament.</string>
     <string name="deleted_with_success">Successfully deleted.</string>
     <string name="delete_error_history">Erreur lors de la suppression de l\'historique</string>
+    <string name="name_from_to">nom de %1$s à %2$s</string>
+    <string name="aisle_from_to">allée de %1$s à %2$s</string>
+    <string name="stock_from_to">stock de %1$d à %2$d</string>
+    <string name="modification_of">"Modification de"</string>
+    <string name="you_haven_t_modified_anything">Vous n\'avez rien modifié</string>
 </resources>

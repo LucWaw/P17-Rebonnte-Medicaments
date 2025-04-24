@@ -192,6 +192,23 @@ fun MedicineDetailScreen(
                     .height(50.dp)
                     .align(Alignment.End),
                 onClick = {
+                    val modifiedDetails = whatIsModified(
+                        nameLocal,
+                        selectedOptionText,
+                        stockLocal,
+                        medicine.name,
+                        medicine.nameAisle,
+                        medicine.stock,
+                        context
+                    )
+
+
+                    if (modifiedDetails == "Nothing was modified") {
+                        Toast.makeText(context,
+                            context.getString(R.string.you_haven_t_modified_anything), Toast.LENGTH_SHORT).show()
+                        return@Button
+                    }
+                    
                     viewModel.modifyMedicine(
                         medicine.id,
                         nameLocal,
@@ -204,7 +221,7 @@ fun MedicineDetailScreen(
                             medicineName = medicine.name,
                             userId = "userId",
                             date = System.currentTimeMillis(),
-                            details = "Modification de la quantité de ${medicine.stock} à $stockLocal"
+                            details = modifiedDetails
                         )
                     )
                 }
@@ -220,6 +237,62 @@ fun MedicineDetailScreen(
         }
     }
 }
+
+/**
+ * Compares the local values of a medicine's name, aisle, and stock with the original values and identifies what has been modified.
+ *
+ * This function takes the original (database or previous) values of a medicine's attributes (name, aisle, stock)
+ * and compares them to the locally stored values, representing user edits.
+ * It then returns a user-friendly string describing what, if anything, has been changed.
+ *
+ * @param nameLocal The locally stored name of the medicine.
+ * @param selectedOptionText The locally stored aisle where the medicine is located.
+ * @param stockLocal The locally stored stock count of the medicine.
+ * @param medicineName The original (database or previous) name of the medicine.
+ * @param medicineAisle The original (database or previous) aisle of the medicine.
+ * @param medicineStock The original (database or previous) stock count of the medicine.
+ * @param context The application context, used for string resource access.
+ * @return A string describing the modifications. If nothing was modified, it returns "Nothing was modified".
+ *         Otherwise, it returns a string like "Modification of: Name: [old name] to [new name], Aisle: [old aisle] to [new aisle], Stock: [old stock] to [new stock]"
+ *         The format of each change is defined by the string resources:
+ *            - R.string.name_from_to: "Name: %1$s to %2$s"
+ *            - R.string.aisle_from_to: "Aisle: %1$s to %2$s"
+ *            - R.string.stock_from_to: "Stock: %1$d to %2$d"
+ *            - R.string.modification_of: "Modification of: "
+ *
+ * @see R.string.name_from_to
+ * @see R.string.aisle_from_to
+ * @see R.string.stock_from_to
+ * @see R.string.modification_of
+ */
+private fun whatIsModified(
+    nameLocal: String,
+    selectedOptionText: String,
+    stockLocal: Int,
+    medicineName: String,
+    medicineAisle: String,
+    medicineStock: Int,
+    context: Context
+): String {
+    val modifications = mutableListOf<String>()
+
+    if (nameLocal != medicineName) {
+        modifications.add(context.getString(R.string.name_from_to, medicineName, nameLocal))
+    }
+    if (selectedOptionText != medicineAisle) {
+        modifications.add(context.getString(R.string.aisle_from_to, medicineAisle, selectedOptionText))
+    }
+    if (stockLocal != medicineStock) {
+        modifications.add(context.getString(R.string.stock_from_to, medicineStock, stockLocal))
+    }
+
+    return if (modifications.isNotEmpty()) {
+        context.getString(R.string.modification_of) + " " + modifications.joinToString(", ")
+    } else {
+        "Nothing was modified"
+    }
+}
+
 
 private fun openDeleteDialog(
     medicineId: String,

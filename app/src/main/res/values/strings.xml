@@ -16,4 +16,12 @@
     <string name="delete_error_database">Error when deleting medication.</string>
     <string name="deleted_with_success">Successfully deleted.</string>
     <string name="delete_error_history">Error when deleting the history</string>
+    <string name="name_from_to">name from %1$s to %2$s</string>
+    <string name="aisle_from_to">aisle from %1$s to %2$s</string>
+    <string name="stock_from_to">stock from %1$d to %2$d</string>
+    <string name="modification_of">Modification of</string>
+    <string name="you_haven_t_modified_anything">You haven\'t modified anything</string>
+    <string name="error_medicine_name"><![CDATA[<string name=\"error_medicine_name\">Medicine name cannot be empty.</string>]]></string>
+    <string name="error_medicine_aisle"><![CDATA[<string name=\"error_medicine_aisle\">Please select an aisle.</string>]]></string>
+    <string name="error_medicine_stock"><![CDATA[<string name=\"error_medicine_stock\">Stock must be a valid positive number.</string>]]></string>
 </resources>
