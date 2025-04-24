@@ -32,7 +32,7 @@ import com.openclassrooms.rebonnte.ui.aisle.AisleDetailScreen
 import com.openclassrooms.rebonnte.ui.aisle.AisleScreen
 import com.openclassrooms.rebonnte.ui.aisle.AisleViewModel
 import com.openclassrooms.rebonnte.ui.aisle.add.AddAisleScreen
-import com.openclassrooms.rebonnte.ui.medicine.MedicineDetailScreen
+import com.openclassrooms.rebonnte.ui.medicine.detail.MedicineDetailScreen
 import com.openclassrooms.rebonnte.ui.medicine.MedicineScreen
 import com.openclassrooms.rebonnte.ui.medicine.MedicineViewModel
 import com.openclassrooms.rebonnte.ui.medicine.add.AddMedicineScreen
@@ -167,10 +167,10 @@ fun MyApp() {
                                     launchSingleTop = true
                                 }
                             },
-                        goToDetail = { nameMedicine ->
-                            Log.d("NAVIGATION", "Navigating to: medicineDetail/$nameMedicine")
+                        goToDetail = { idMedicine ->
+                            Log.d("NAVIGATION", "Navigating to: medicineDetail/$idMedicine")
 
-                            navController.navigate("medicineDetail/${nameMedicine}") {
+                            navController.navigate("medicineDetail/${idMedicine}") {
                                 // launch the screen in single top mode so that it is not recreated
                                 launchSingleTop = true
                             }
@@ -189,18 +189,17 @@ fun MyApp() {
                                 }
                             })
                 }
-                composable("medicineDetail/{medicineName}") { backStackEntry ->
+                composable("medicineDetail/{medicineId}") { backStackEntry ->
                     Log.d(
                         "NAVIGATION",
-                        "Navigating FROM: medicineDetail/${backStackEntry.arguments?.getString("medicineName")}"
+                        "Navigating FROM: medicineDetail/${backStackEntry.arguments?.getString("medicineId")}"
                     )
 
-                    val medicineName = backStackEntry.arguments?.getString("medicineName")
+                    val medicineId = backStackEntry.arguments?.getString("medicineId")
 
-                    if (medicineName != null) {
+                    if (medicineId != null) {
                         MedicineDetailScreen(
-                            viewModel = medicineViewModel,
-                            name = medicineName,
+                            id = medicineId,
                         )
                     }
 

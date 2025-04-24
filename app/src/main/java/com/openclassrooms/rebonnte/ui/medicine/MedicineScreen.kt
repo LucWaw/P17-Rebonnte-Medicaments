@@ -138,7 +138,7 @@ fun MedicineScreen(
         ) {
             items(medicines) { medicine ->
                 MedicineItem(medicine = medicine, onClick = {
-                    goToDetail(medicine.name)
+                    goToDetail(medicine.id)
                 })
             }
         }

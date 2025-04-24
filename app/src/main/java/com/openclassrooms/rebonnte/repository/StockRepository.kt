@@ -28,7 +28,7 @@ class StockRepository @Inject constructor(private val firebaseApi: FirebaseApi) 
         return firebaseApi.addHistory(medicineId, history)
     }
 
-    fun modifyMedicine(medicineId: String, stock: Int) {
-        firebaseApi.modifyMedicine(medicineId, stock)
+    fun modifyMedicine(medicineId: String, name : String, aisle: String, stock: Int) {
+        firebaseApi.modifyMedicine(medicineId, name, aisle, stock)
     }
 }

@@ -120,10 +120,10 @@ class FirebaseApi {
             .add(history)
     }
 
-    fun modifyMedicine(medicineId: String, stock: Int) {
+    fun modifyMedicine(medicineId: String, name : String, aisle: String, stock: Int) {
         getMedecineCollection()
             .document(medicineId)
-            .update("stock", stock)
+            .update("stock", stock, "name", name, "nameAisle", aisle)
     }
 
 }
