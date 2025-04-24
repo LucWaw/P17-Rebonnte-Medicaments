@@ -34,10 +34,10 @@ import com.openclassrooms.rebonnte.ui.aisle.AisleDetailScreen
 import com.openclassrooms.rebonnte.ui.aisle.AisleScreen
 import com.openclassrooms.rebonnte.ui.aisle.AisleViewModel
 import com.openclassrooms.rebonnte.ui.aisle.add.AddAisleScreen
-import com.openclassrooms.rebonnte.ui.medicine.detail.MedicineDetailScreen
 import com.openclassrooms.rebonnte.ui.medicine.MedicineScreen
 import com.openclassrooms.rebonnte.ui.medicine.MedicineViewModel
 import com.openclassrooms.rebonnte.ui.medicine.add.AddMedicineScreen
+import com.openclassrooms.rebonnte.ui.medicine.detail.MedicineDetailScreen
 import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -143,7 +143,7 @@ fun MyApp() {
                             },
                         addAisle =
                             {
-                                navController.navigate("addAisle"){
+                                navController.navigate("addAisle") {
                                     // launch the screen in single top mode so that it is not recreated
                                     launchSingleTop = true
                                 }
@@ -172,7 +172,7 @@ fun MyApp() {
                         goToDetail = { idMedicine ->
                             Log.d("NAVIGATION", "Navigating to: medicineDetail/$idMedicine")
 
-                            navController.navigate("medicineDetail/${idMedicine}/true") {
+                            navController.navigate("medicineDetail/${idMedicine}") {
                                 // launch the screen in single top mode so that it is not recreated
                                 launchSingleTop = true
                             }
@@ -192,30 +192,17 @@ fun MyApp() {
                             })
                 }
                 composable(
-                    route = "medicineDetail/{medicineId}/{fromWhere}?aisleName={aisleName}",
+                    route = "medicineDetail/{medicineId}",
                     arguments = listOf(
                         navArgument("medicineId") { type = NavType.StringType },
-                        navArgument("fromWhere") { type = NavType.BoolType }, // Define as Boolean
-                        navArgument("aisleName") { type = NavType.StringType; nullable = true } // Optional String
                     )
-                ) { backStackEntry ->                    val medicineId = backStackEntry.arguments?.getString("medicineId")
-                    val fromWhere = backStackEntry.arguments?.getBoolean("fromWhere")
-                    val aisleName = backStackEntry.arguments?.getString("aisleName")
+                ) { backStackEntry ->
+                    val medicineId = backStackEntry.arguments?.getString("medicineId")
 
                     if (medicineId != null) {
                         MedicineDetailScreen(
                             onBackClick = {
-                                if (fromWhere == true) {
-                                    navController.navigate("medicine") {
-                                        // launch the screen in single top mode so that it is not recreated
-                                        launchSingleTop = true
-                                    }
-                                } else {
-                                    navController.navigate("aisleDetail/$aisleName") {
-                                        // launch the screen in single top mode so that it is not recreated
-                                        launchSingleTop = true
-                                    }
-                                }
+                                navController.popBackStack()
                             },
                             id = medicineId,
                         )
@@ -230,7 +217,7 @@ fun MyApp() {
                             name = aisleName,
                             navigateToMedicineDetail =
                                 { id ->
-                                    navController.navigate("medicineDetail/${id}/false?aisleName=$aisleName") {
+                                    navController.navigate("medicineDetail/${id}") {
                                         // launch the screen in single top mode so that it is not recreated
                                         launchSingleTop = true
                                     }
