@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
@@ -108,8 +109,9 @@ class AddMedicineViewModel @Inject constructor(
             // Add other Medicine fields if necessary, potentially from uiState or defaults
         )
 
-
-        stockRepository.addMedicine(medicine)
+        viewModelScope.launch {
+            stockRepository.addMedicine(medicine)
+        }
         // Clear form state after successful save
         _uiState.value = AddMedicineUiState()
 
