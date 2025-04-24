@@ -9,4 +9,12 @@
     <string name="error">Icone D\'erreur</string>
     <string name="validate">Valider</string>
     <string name="valid_modifications">Valider les modifications</string>
+    <string name="go_back">Retour</string>
+    <string name="delete_medicine">Supprimer le médicament</string>
+    <string name="popup_message_confirmation_delete_medicine">Supprimer le médicament ? Tous l\'historique sera également supprimé.</string>
+    <string name="popup_message_choice_yes">Oui</string>
+    <string name="popup_message_choice_no">Non</string>
+    <string name="delete_error_database">Erreur lors de la suppression du médicament.</string>
+    <string name="deleted_with_success">Successfully deleted.</string>
+    <string name="delete_error_history">Erreur lors de la suppression de l\'historique</string>
 </resources>

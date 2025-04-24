@@ -48,54 +48,55 @@ class FirebaseApi {
      * @param orderBy Le critère de tri ou de filtre à appliquer (par nom, par stock, etc.).
      * @return Un Flow émettant une liste de médicaments mise à jour en temps réel.
      */
-    fun getAllMedicines(orderBy: OrderFilter, filter : String = ""): Flow<List<Medicine>> = callbackFlow {
-        // Récupération de la référence à la collection "Medicines" dans Firestore
-        val collection = getMedecineCollection()
+    fun getAllMedicines(orderBy: OrderFilter, filter: String = ""): Flow<List<Medicine>> =
+        callbackFlow {
+            // Récupération de la référence à la collection "Medicines" dans Firestore
+            val collection = getMedecineCollection()
 
-        // Application du filtre ou de l'ordre selon la valeur de "orderBy"
-        val collectionRef = when (orderBy) {
-            OrderFilter.ORDER_BY_NAME -> collection.orderBy("name")
-            OrderFilter.ORDER_BY_STOCK -> collection.orderBy("stock")
-            OrderFilter.NONE -> collection
-            OrderFilter.FILTER_BY_NAME -> collection
-                .whereGreaterThanOrEqualTo("name", filter)
-                .whereLessThanOrEqualTo("name", filter + '\uf8ff')
+            // Application du filtre ou de l'ordre selon la valeur de "orderBy"
+            val collectionRef = when (orderBy) {
+                OrderFilter.ORDER_BY_NAME -> collection.orderBy("name")
+                OrderFilter.ORDER_BY_STOCK -> collection.orderBy("stock")
+                OrderFilter.NONE -> collection
+                OrderFilter.FILTER_BY_NAME -> collection
+                    .whereGreaterThanOrEqualTo("name", filter)
+                    .whereLessThanOrEqualTo("name", filter + '\uf8ff')
 
-        }
-
-        // Mise en place du listener Firestore pour recevoir les mises à jour en temps réel
-        val listener = collectionRef.addSnapshotListener { snapshot, error ->
-            if (error != null) {
-                // En cas d'erreur, on ferme le flux
-                close(error)
-                return@addSnapshotListener
             }
 
-            // Liste des documents récupérés ou liste vide par défaut
-            val documents = snapshot?.documents ?: emptyList()
-
-            // Lancement d'une coroutine pour charger les historiques de chaque médicament en parallèle
-            CoroutineScope(Dispatchers.IO).launch {
-                val medicineList = documents.map { document ->
-                    // Conversion du document Firestore en objet Medicine, avec récupération de l'ID
-                    val medicine =
-                        document.toObject(Medicine::class.java)!!.copy(id = document.id)
-
-                    // Récupération de la sous-collection "History" pour ce médicament
-                    val histories = getHistoriesForMedicine(document.id)
-
-                    // Création de l'objet complet avec historique
-                    medicine.copy(histories = histories)
+            // Mise en place du listener Firestore pour recevoir les mises à jour en temps réel
+            val listener = collectionRef.addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    // En cas d'erreur, on ferme le flux
+                    close(error)
+                    return@addSnapshotListener
                 }
 
-                // Envoi de la liste dans le flux
-                trySend(medicineList)
-            }
-        }
+                // Liste des documents récupérés ou liste vide par défaut
+                val documents = snapshot?.documents ?: emptyList()
 
-        // Nettoyage : suppression du listener quand le Flow est annulé
-        awaitClose { listener.remove() }
-    }
+                // Lancement d'une coroutine pour charger les historiques de chaque médicament en parallèle
+                CoroutineScope(Dispatchers.IO).launch {
+                    val medicineList = documents.map { document ->
+                        // Conversion du document Firestore en objet Medicine, avec récupération de l'ID
+                        val medicine =
+                            document.toObject(Medicine::class.java)!!.copy(id = document.id)
+
+                        // Récupération de la sous-collection "History" pour ce médicament
+                        val histories = getHistoriesForMedicine(document.id)
+
+                        // Création de l'objet complet avec historique
+                        medicine.copy(histories = histories)
+                    }
+
+                    // Envoi de la liste dans le flux
+                    trySend(medicineList)
+                }
+            }
+
+            // Nettoyage : suppression du listener quand le Flow est annulé
+            awaitClose { listener.remove() }
+        }
 
 
     suspend fun getHistoriesForMedicine(medicineId: String): List<History> {
@@ -107,7 +108,7 @@ class FirebaseApi {
             .toObjects(History::class.java)
     }
 
-    fun addAisle(nameAisle : String){
+    fun addAisle(nameAisle: String) {
         val aisle = Aisle(nameAisle)
         getAisleCollection().add(aisle)
     }
@@ -123,10 +124,35 @@ class FirebaseApi {
             .add(history)
     }
 
-    fun modifyMedicine(medicineId: String, name : String, aisle: String, stock: Int) {
+    fun modifyMedicine(medicineId: String, name: String, aisle: String, stock: Int) {
         getMedecineCollection()
             .document(medicineId)
             .update("stock", stock, "name", name, "nameAisle", aisle)
     }
+
+    fun deleteMedicine(idMedicine: String): Task<Task<Void?>?> {
+        // Récupère la référence du document du médicament
+        val medicineRef = getMedecineCollection().document(idMedicine)
+
+        // Récupère la sous-collection "history" du médicament
+        val historyRef = medicineRef.collection("history")
+
+        // Supprime tous les documents de la sous-collection "history"
+        return historyRef.get().continueWith { task ->
+            if (task.isSuccessful) {
+                // Récupère les documents de l'historique
+                val historyDocs = task.result?.documents ?: emptyList()
+
+                // Supprime chaque document de l'historique
+                historyDocs.forEach { doc ->
+                    doc.reference.delete() // Supprimer chaque document de l'historique
+                }
+            }
+        }.continueWith { task ->
+            // Après avoir supprimé les documents de l'historique, on supprime le document du médicament
+            medicineRef.delete()
+        }
+    }
+
 
 }

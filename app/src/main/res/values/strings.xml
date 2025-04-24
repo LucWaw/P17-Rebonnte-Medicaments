@@ -8,4 +8,12 @@
     <string name="error">Error Icon</string>
     <string name="validate">Validate</string>
     <string name="valid_modifications">Validate Modifications</string>
+    <string name="go_back">Go back</string>
+    <string name="delete_medicine">Delete medicine</string>
+    <string name="popup_message_confirmation_delete_medicine">Delete the medicine? All history will also be deleted.</string>
+    <string name="popup_message_choice_yes">Yes</string>
+    <string name="popup_message_choice_no">No</string>
+    <string name="delete_error_database">Error when deleting medication.</string>
+    <string name="deleted_with_success">Successfully deleted.</string>
+    <string name="delete_error_history">Error when deleting the history</string>
 </resources>

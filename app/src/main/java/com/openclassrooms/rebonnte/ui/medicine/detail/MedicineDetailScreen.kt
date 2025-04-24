@@ -1,6 +1,9 @@
 package com.openclassrooms.rebonnte.ui.medicine.detail
 
+import android.app.AlertDialog
+import android.content.Context
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,6 +17,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Button
@@ -29,6 +34,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -38,10 +44,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.android.gms.tasks.Task
 import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.domain.History
 import java.time.Instant
@@ -53,16 +61,53 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun MedicineDetailScreen(id: String, viewModel: MedicineDetailViewModel = hiltViewModel()) {
+fun MedicineDetailScreen(
+    id: String,
+    onBackClick: () -> Unit,
+    viewModel: MedicineDetailViewModel = hiltViewModel()
+) {
     val medicines by viewModel.medicines.collectAsState(initial = emptyList())
     val aisles by viewModel.aisles.collectAsState(initial = emptyList())
     val medicine = medicines.find { it.id == id } ?: return
     var nameLocal by remember { mutableStateOf(medicine.name) }
 
     var stockLocal by remember { mutableIntStateOf(medicine.stock) }
+    var context = LocalContext.current
 
-
-    Scaffold { paddingValues ->
+    Scaffold(
+        topBar =
+            {
+                TopAppBar(
+                    title = { Text(medicine.name) },
+                    navigationIcon = {
+                        IconButton(onClick = {
+                            onBackClick()
+                        }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                                contentDescription = stringResource(R.string.go_back)
+                            )
+                        }
+                    },
+                    actions =
+                        {
+                            IconButton(onClick = {
+                                openDeleteDialog(
+                                    id,
+                                    viewModel::deleteMedicine,
+                                    onBackClick,
+                                    context
+                                )
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Filled.Delete,
+                                    contentDescription = stringResource(R.string.delete_medicine)
+                                )
+                            }
+                        }
+                )
+            }
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .padding(paddingValues)
@@ -174,6 +219,44 @@ fun MedicineDetailScreen(id: String, viewModel: MedicineDetailViewModel = hiltVi
             }
         }
     }
+}
+
+private fun openDeleteDialog(
+    medicineId: String,
+    deleteMedicine: (String) -> Task<Task<Void?>?>,
+    onBackClick: () -> Unit,
+    context: Context
+) {
+    AlertDialog.Builder(context)
+        .setMessage(R.string.popup_message_confirmation_delete_medicine)
+        .setPositiveButton(
+            R.string.popup_message_choice_yes
+        ) { _, _ ->
+            deleteMedicine(medicineId)
+                .addOnSuccessListener { innerTask ->
+                    innerTask?.addOnSuccessListener {
+                        onBackClick()
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.deleted_with_success), Toast.LENGTH_SHORT
+                        ).show()
+                    }?.addOnFailureListener {
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.delete_error_database), Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+                .addOnFailureListener {
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.delete_error_history), Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+        }
+        .setNegativeButton(R.string.popup_message_choice_no, null)
+        .show()
 }
 
 @RequiresApi(Build.VERSION_CODES.O)

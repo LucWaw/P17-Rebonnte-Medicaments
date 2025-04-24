@@ -199,6 +199,12 @@ fun MyApp() {
 
                     if (medicineId != null) {
                         MedicineDetailScreen(
+                            onBackClick = {
+                                navController.navigate("medicine") {
+                                    // launch the screen in single top mode so that it is not recreated
+                                    launchSingleTop = true
+                                }
+                            },
                             id = medicineId,
                         )
                     }
