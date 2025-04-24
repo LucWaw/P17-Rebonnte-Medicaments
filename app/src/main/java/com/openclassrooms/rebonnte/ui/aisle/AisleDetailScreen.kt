@@ -43,8 +43,8 @@ fun AisleDetailScreen(
             modifier = Modifier.fillMaxSize()
         ) {
             items(filteredMedicines) { medicine ->
-                MedicineItem(medicine = medicine, onClick = { name ->
-                    navigateToMedicineDetail(name)
+                MedicineItem(medicine = medicine, onClick = { id ->
+                    navigateToMedicineDetail(id)
                 })
             }
         }
@@ -56,7 +56,7 @@ fun MedicineItem(medicine: Medicine, onClick: (String) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick(medicine.name) }
+            .clickable { onClick(medicine.id) }
             .padding(16.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {

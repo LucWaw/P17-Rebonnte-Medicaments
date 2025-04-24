@@ -4,6 +4,7 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query.Direction
 import com.google.firebase.firestore.snapshots
 import com.openclassrooms.rebonnte.domain.Aisle
 import com.openclassrooms.rebonnte.domain.History
@@ -102,7 +103,10 @@ class FirebaseApi {
     suspend fun getHistoriesForMedicine(medicineId: String): List<History> {
         return getMedecineCollection()
             .document(medicineId)
-            .collection("history")
+            .collection("history").orderBy(
+                "date",
+                Direction.DESCENDING
+            )
             .get()
             .await()
             .toObjects(History::class.java)

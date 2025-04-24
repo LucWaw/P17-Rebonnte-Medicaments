@@ -170,7 +170,7 @@ fun MyApp() {
                         goToDetail = { idMedicine ->
                             Log.d("NAVIGATION", "Navigating to: medicineDetail/$idMedicine")
 
-                            navController.navigate("medicineDetail/${idMedicine}") {
+                            navController.navigate("medicineDetail/${idMedicine}/true") {
                                 // launch the screen in single top mode so that it is not recreated
                                 launchSingleTop = true
                             }
@@ -189,23 +189,27 @@ fun MyApp() {
                                 }
                             })
                 }
-                composable("medicineDetail/{medicineId}") { backStackEntry ->
-                    Log.d(
-                        "NAVIGATION",
-                        "Navigating FROM: medicineDetail/${backStackEntry.arguments?.getString("medicineId")}"
-                    )
-
+                composable("medicineDetail/{medicineId}/{fromWhere}") { backStackEntry ->
                     val medicineId = backStackEntry.arguments?.getString("medicineId")
+                    val fromWhere = backStackEntry.arguments?.getString("fromWhere").toBoolean()
 
                     if (medicineId != null) {
                         MedicineDetailScreen(
                             onBackClick = {
-                                navController.navigate("medicine") {
-                                    // launch the screen in single top mode so that it is not recreated
-                                    launchSingleTop = true
+                                if (fromWhere) {
+                                    navController.navigate("medicine") {
+                                        // launch the screen in single top mode so that it is not recreated
+                                        launchSingleTop = true
+                                    }
+                                } else {
+                                    navController.navigate("aisle") {
+                                        // launch the screen in single top mode so that it is not recreated
+                                        launchSingleTop = true
+                                    }
                                 }
                             },
                             id = medicineId,
+                            isFromMedicine = fromWhere,
                         )
                     }
 
@@ -217,8 +221,8 @@ fun MyApp() {
                             viewModel = medicineViewModel,
                             name = aisleName,
                             navigateToMedicineDetail =
-                                { name ->
-                                    navController.navigate("medicineDetail/${name}") {
+                                { id ->
+                                    navController.navigate("medicineDetail/${id}/false") {
                                         // launch the screen in single top mode so that it is not recreated
                                         launchSingleTop = true
                                     }
