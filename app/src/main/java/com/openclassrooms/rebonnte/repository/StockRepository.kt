@@ -14,7 +14,7 @@ class StockRepository @Inject constructor(private val firebaseApi: FirebaseApi) 
 
     val aisles: Flow<List<Aisle>> = firebaseApi.getAllAisles()
 
-    fun medicines(orderFilter: OrderFilter) :  Flow<List<Medicine>> = firebaseApi.getAllMedicines(orderFilter)
+    fun medicines(orderFilter: OrderFilter, filter : String = "") :  Flow<List<Medicine>> = firebaseApi.getAllMedicines(orderFilter, filter)
 
     fun addAisle(aisle: String) {
         firebaseApi.addAisle(aisle)

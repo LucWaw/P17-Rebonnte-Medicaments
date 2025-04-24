@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.openclassrooms.rebonnte.domain.Medicine
+import com.openclassrooms.rebonnte.repository.OrderFilter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -85,21 +86,21 @@ fun MedicineScreen(
                                     ) {
                                         DropdownMenuItem(
                                             onClick = {
-                                                //viewModel.sortByNone()
+                                                viewModel.updateFilterAndSort(OrderFilter.NONE)
                                                 expanded = false
                                             },
                                             text = { Text("Sort by None") }
                                         )
                                         DropdownMenuItem(
                                             onClick = {
-                                                //viewModel.sortByName()
+                                                viewModel.updateFilterAndSort(OrderFilter.ORDER_BY_NAME)
                                                 expanded = false
                                             },
                                             text = { Text("Sort by Name") }
                                         )
                                         DropdownMenuItem(
                                             onClick = {
-                                                //viewModel.sortByStock()
+                                                viewModel.updateFilterAndSort(OrderFilter.ORDER_BY_STOCK)
                                                 expanded = false
                                             },
                                             text = { Text("Sort by Stock") }
@@ -113,8 +114,8 @@ fun MedicineScreen(
                     EmbeddedSearchBar(
                         query = searchQuery,
                         onQueryChange = {
-                            //viewModel.filterByName(it)
                             searchQuery = it
+                            viewModel.updateFilterAndSort(OrderFilter.FILTER_BY_NAME, searchQuery)
                         },
                         isSearchActive = isSearchActive,
                         onActiveChanged = { isSearchActive = it }

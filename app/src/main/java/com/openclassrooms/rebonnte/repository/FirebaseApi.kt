@@ -57,7 +57,10 @@ class FirebaseApi {
             OrderFilter.ORDER_BY_NAME -> collection.orderBy("name")
             OrderFilter.ORDER_BY_STOCK -> collection.orderBy("stock")
             OrderFilter.NONE -> collection
-            OrderFilter.FILTER_BY_NAME -> collection.whereGreaterThanOrEqualTo("name", filter)
+            OrderFilter.FILTER_BY_NAME -> collection
+                .whereGreaterThanOrEqualTo("name", filter)
+                .whereLessThanOrEqualTo("name", filter + '\uf8ff')
+
         }
 
         // Mise en place du listener Firestore pour recevoir les mises à jour en temps réel
