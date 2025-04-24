@@ -21,10 +21,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.openclassrooms.rebonnte.ui.account.SignInScreen
@@ -189,27 +191,33 @@ fun MyApp() {
                                 }
                             })
                 }
-                composable("medicineDetail/{medicineId}/{fromWhere}") { backStackEntry ->
-                    val medicineId = backStackEntry.arguments?.getString("medicineId")
-                    val fromWhere = backStackEntry.arguments?.getString("fromWhere").toBoolean()
+                composable(
+                    route = "medicineDetail/{medicineId}/{fromWhere}?aisleName={aisleName}",
+                    arguments = listOf(
+                        navArgument("medicineId") { type = NavType.StringType },
+                        navArgument("fromWhere") { type = NavType.BoolType }, // Define as Boolean
+                        navArgument("aisleName") { type = NavType.StringType; nullable = true } // Optional String
+                    )
+                ) { backStackEntry ->                    val medicineId = backStackEntry.arguments?.getString("medicineId")
+                    val fromWhere = backStackEntry.arguments?.getBoolean("fromWhere")
+                    val aisleName = backStackEntry.arguments?.getString("aisleName")
 
                     if (medicineId != null) {
                         MedicineDetailScreen(
                             onBackClick = {
-                                if (fromWhere) {
+                                if (fromWhere == true) {
                                     navController.navigate("medicine") {
                                         // launch the screen in single top mode so that it is not recreated
                                         launchSingleTop = true
                                     }
                                 } else {
-                                    navController.navigate("aisle") {
+                                    navController.navigate("aisleDetail/$aisleName") {
                                         // launch the screen in single top mode so that it is not recreated
                                         launchSingleTop = true
                                     }
                                 }
                             },
                             id = medicineId,
-                            isFromMedicine = fromWhere,
                         )
                     }
 
@@ -222,7 +230,7 @@ fun MyApp() {
                             name = aisleName,
                             navigateToMedicineDetail =
                                 { id ->
-                                    navController.navigate("medicineDetail/${id}/false") {
+                                    navController.navigate("medicineDetail/${id}/false?aisleName=$aisleName") {
                                         // launch the screen in single top mode so that it is not recreated
                                         launchSingleTop = true
                                     }

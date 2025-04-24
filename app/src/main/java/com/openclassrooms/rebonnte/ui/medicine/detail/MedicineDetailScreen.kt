@@ -63,8 +63,7 @@ import java.util.Locale
 @Composable
 fun MedicineDetailScreen(
     id: String,
-    isFromMedicine : Boolean,
-    onBackClick: (Boolean) -> Unit,
+    onBackClick: () -> Unit,
     viewModel: MedicineDetailViewModel = hiltViewModel()
 ) {
     val medicines by viewModel.medicines.collectAsState(initial = emptyList())
@@ -82,7 +81,7 @@ fun MedicineDetailScreen(
                     title = { Text(medicine.name) },
                     navigationIcon = {
                         IconButton(onClick = {
-                            onBackClick(isFromMedicine)
+                            onBackClick()
                         }) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
@@ -97,7 +96,6 @@ fun MedicineDetailScreen(
                                     id,
                                     viewModel::deleteMedicine,
                                     onBackClick,
-                                    isFromMedicine,
                                     context
                                 )
                             }) {
@@ -299,8 +297,7 @@ private fun whatIsModified(
 private fun openDeleteDialog(
     medicineId: String,
     deleteMedicine: (String) -> Task<Task<Void?>?>,
-    onBackClick: (Boolean) -> Unit,
-    isFromMedicine: Boolean,
+    onBackClick: () -> Unit,
     context: Context
 ) {
     AlertDialog.Builder(context)
@@ -311,7 +308,7 @@ private fun openDeleteDialog(
             deleteMedicine(medicineId)
                 .addOnSuccessListener { innerTask ->
                     innerTask?.addOnSuccessListener {
-                        onBackClick(isFromMedicine)
+                        onBackClick()
                         Toast.makeText(
                             context,
                             context.getString(R.string.deleted_with_success), Toast.LENGTH_SHORT
