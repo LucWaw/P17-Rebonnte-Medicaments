@@ -69,8 +69,7 @@ class AddMedicineViewModel @Inject constructor(
             }
 
             is AddMedicineFormEvent.StockChanged -> {
-                // Only allow digits in stock input if desired, or handle validation purely in verify
-                _uiState.update { it.copy(stockInput = formEvent.stock /*.filter { c -> c.isDigit() } */) }
+                _uiState.update { it.copy(stockInput = formEvent.stock ) }
             }
 
             is AddMedicineFormEvent.AisleChanged -> {
