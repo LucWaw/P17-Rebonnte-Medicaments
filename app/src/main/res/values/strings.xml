@@ -6,7 +6,6 @@
     <string name="unknow_error">An unknown error occurred.</string>
     <string name="SuccessfulConnexion">Successful Connexion</string>
     <string name="error">Error Icon</string>
-    <string name="validate">Validate</string>
     <string name="valid_modifications">Validate Modifications</string>
     <string name="go_back">Go back</string>
     <string name="delete_medicine">Delete medicine</string>
@@ -21,7 +20,14 @@
     <string name="stock_from_to">stock from %1$d to %2$d</string>
     <string name="modification_of">Modification of</string>
     <string name="you_haven_t_modified_anything">You haven\'t modified anything</string>
-    <string name="error_medicine_name"><![CDATA[<string name=\"error_medicine_name\">Medicine name cannot be empty.</string>]]></string>
-    <string name="error_medicine_aisle"><![CDATA[<string name=\"error_medicine_aisle\">Please select an aisle.</string>]]></string>
-    <string name="error_medicine_stock"><![CDATA[<string name=\"error_medicine_stock\">Stock must be a valid positive number.</string>]]></string>
+    <string name="error_medicine_name">Medicine name cannot be empty.</string>
+    <string name="error_medicine_aisle">Please select an aisle.</string>
+    <string name="error_medicine_stock">Stock must be a valid positive number.</string>
+    <string name="add_medicine_title">Add New Medicine</string>
+    <string name="medicine_name_label">Medicine Name</string>
+    <string name="aisle_label">Aisle</string>
+    <string name="select_aisle_placeholder">Select an Aisle</string>
+    <string name="no_aisles_available">No aisles available</string>
+    <string name="stock_label">Stock Quantity</string>
+    <string name="validate">Save Medicine</string>
 </resources>

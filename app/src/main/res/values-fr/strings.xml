@@ -7,6 +7,7 @@
     <string name="unknow_error">Une erreur inconnue s\'est produite.</string>
     <string name="SuccessfulConnexion">Connexion Réussie</string>
     <string name="error">Icone D\'erreur</string>
+    <string name="stock_label">Quantité en stock</string>
     <string name="validate">Valider</string>
     <string name="valid_modifications">Valider les modifications</string>
     <string name="go_back">Retour</string>
@@ -22,4 +23,12 @@
     <string name="stock_from_to">stock de %1$d à %2$d</string>
     <string name="modification_of">"Modification de"</string>
     <string name="you_haven_t_modified_anything">Vous n\'avez rien modifié</string>
+    <string name="error_medicine_name">Le nom du médicament ne peut pas être vide.</string>
+    <string name="error_medicine_aisle">Veuillez sélectionner une allée.</string>
+    <string name="error_medicine_stock">Stock doit être un nombre positif valide.</string>
+    <string name="add_medicine_title">Ajouter un nouveau médicament</string>
+    <string name="medicine_name_label">Nom du médicament</string>
+    <string name="aisle_label">Allée</string>
+    <string name="select_aisle_placeholder">Sélectionnez une allée</string>
+    <string name="no_aisles_available">Pas d\'allées disponibles</string>
 </resources>
