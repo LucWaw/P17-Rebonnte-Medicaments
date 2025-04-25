@@ -151,15 +151,6 @@ fun MyApp() {
                                     // launch the screen in single top mode so that it is not recreated
                                     launchSingleTop = true
                                 }
-                            },
-                        navigateToLogin =
-                            {
-                                navController.navigate("login") {
-                                    // prevent from returning to main screen
-                                    popUpTo(navController.graph.id) { inclusive = true }
-                                    // launch the screen in single top mode so that it is not recreated
-                                    launchSingleTop = true
-                                }
                             }
                     )
                 }
@@ -217,6 +208,9 @@ fun MyApp() {
                     if (aisleName != null) {
                         AisleDetailScreen(
                             name = aisleName,
+                            onBackClick = {
+                                navController.popBackStack()
+                            },
                             navigateToMedicineDetail =
                                 { id ->
                                     navController.navigate("medicineDetail/${id}") {

@@ -36,4 +36,6 @@
     <string name="aisle_label">Allée</string>
     <string name="select_aisle_placeholder">Sélectionnez une allée</string>
     <string name="no_aisles_available">Pas d\'allées disponibles</string>
+    <string name="add_aisle_title">Ajouter Une Nouvelle Allée</string>
+    <string name="validate_aisle">Valider</string>
 </resources>

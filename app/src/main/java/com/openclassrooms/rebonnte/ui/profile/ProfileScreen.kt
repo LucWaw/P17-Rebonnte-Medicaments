@@ -101,7 +101,7 @@ fun Profile(modifier: Modifier = Modifier, onDeleteUser: () -> Unit, onSignOutUs
         ButtonWithIcon(
             text = stringResource(id = R.string.logout),
             icon = painterResource(id = R.drawable.logout),
-            color = Color.White,
+            color = MaterialTheme.colorScheme.primary,
             onClick = { onSignOutUser() },
             shape = CircleShape
         )

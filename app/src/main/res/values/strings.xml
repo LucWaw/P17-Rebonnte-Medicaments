@@ -35,4 +35,6 @@
     <string name="no_aisles_available">No aisles available</string>
     <string name="stock_label">Stock Quantity</string>
     <string name="validate">Save Medicine</string>
+    <string name="add_aisle_title">Add New Aisle</string>
+    <string name="validate_aisle">Save aisle</string>
 </resources>
