@@ -30,7 +30,7 @@ import androidx.navigation.navArgument
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.openclassrooms.rebonnte.ui.account.SignInScreen
-import com.openclassrooms.rebonnte.ui.aisle.AisleDetailScreen
+import com.openclassrooms.rebonnte.ui.aisle.detail.AisleDetailScreen
 import com.openclassrooms.rebonnte.ui.aisle.AisleScreen
 import com.openclassrooms.rebonnte.ui.aisle.add.AddAisleScreen
 import com.openclassrooms.rebonnte.ui.medicine.MedicineScreen

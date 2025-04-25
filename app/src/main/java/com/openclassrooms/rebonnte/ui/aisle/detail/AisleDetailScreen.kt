@@ -1,4 +1,4 @@
-package com.openclassrooms.rebonnte.ui.aisle
+package com.openclassrooms.rebonnte.ui.aisle.detail
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -30,7 +30,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.domain.Medicine
-import com.openclassrooms.rebonnte.ui.medicine.MedicineViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,8 +37,8 @@ import com.openclassrooms.rebonnte.ui.medicine.MedicineViewModel
 fun AisleDetailScreen(
     name: String,
     navigateToMedicineDetail: (String) -> Unit,
-    onBackClick : () -> Unit,
-    viewModel: MedicineViewModel = hiltViewModel()
+    onBackClick: () -> Unit,
+    viewModel: AisleDetailViewModel = hiltViewModel()
 ) {
     val medicines by viewModel.getMedicines().collectAsStateWithLifecycle(emptyList())
     val filteredMedicines = medicines.filter { it.nameAisle == name }
@@ -63,7 +62,7 @@ fun AisleDetailScreen(
             )
         },
 
-    ) { paddingValues ->
+        ) { paddingValues ->
         LazyColumn(
             contentPadding = paddingValues,
             modifier = Modifier.fillMaxSize()
