@@ -39,4 +39,5 @@
     <string name="add_aisle_title">Ajouter Une Nouvelle Allée</string>
     <string name="validate_aisle">Valider</string>
     <string name="sign_in_cancelled">Connexion Annulé</string>
+    <string name="delete_aisle">Supprimer l\'allée</string>
 </resources>

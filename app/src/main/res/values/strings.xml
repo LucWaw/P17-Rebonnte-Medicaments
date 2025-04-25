@@ -37,4 +37,6 @@
     <string name="validate">Save Medicine</string>
     <string name="add_aisle_title">Add New Aisle</string>
     <string name="validate_aisle">Save aisle</string>
+    <string name="delete_aisle">Delete the Aisle</string>
+    <string name="sign_in_cancelled">Sign In Cancelled</string>
 </resources>

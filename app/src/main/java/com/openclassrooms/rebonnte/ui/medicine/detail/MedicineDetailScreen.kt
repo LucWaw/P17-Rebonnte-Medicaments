@@ -1,6 +1,5 @@
 package com.openclassrooms.rebonnte.ui.medicine.detail
 
-import android.app.AlertDialog
 import android.content.Context
 import android.os.Build
 import android.widget.Toast
@@ -53,7 +52,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.google.android.gms.tasks.Task
 import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.domain.History
 import java.time.Instant
@@ -78,13 +76,13 @@ fun MedicineDetailScreen(
     var stockLocal by remember { mutableIntStateOf(medicine.stock) }
     var context = LocalContext.current
 
-    var showDialog by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
-    if (showDialog) {
+    if (showDeleteDialog) {
         DeleteMedicineDialogCustom(
-            onDismissRequest = { showDialog = false },
+            onDismissRequest = { showDeleteDialog = false },
             onConfirmDelete = {
-                showDialog = false
+                showDeleteDialog = false
                 viewModel.deleteMedicine(id)
                     .addOnSuccessListener { innerTask ->
                         innerTask?.addOnSuccessListener {
@@ -132,7 +130,7 @@ fun MedicineDetailScreen(
                     actions =
                         {
                             IconButton(modifier = Modifier.testTag("deleteMedicine"), onClick = {
-                                showDialog = true
+                                showDeleteDialog = true
                             }) {
                                 Icon(
                                     imageVector = Icons.Filled.Delete,
