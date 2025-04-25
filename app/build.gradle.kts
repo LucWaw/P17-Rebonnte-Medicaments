@@ -56,6 +56,8 @@ android {
 
 dependencies {
 
+    implementation(libs.androidx.lifecycle.runtime.compose)
+
     //DI
     implementation(libs.hilt)
     ksp(libs.hilt.compiler)

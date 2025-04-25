@@ -36,7 +36,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -49,6 +48,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.gms.tasks.Task
 import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.domain.History
@@ -66,8 +66,8 @@ fun MedicineDetailScreen(
     onBackClick: () -> Unit,
     viewModel: MedicineDetailViewModel = hiltViewModel()
 ) {
-    val medicines by viewModel.medicines.collectAsState(initial = emptyList())
-    val aisles by viewModel.aisles.collectAsState(initial = emptyList())
+    val medicines by viewModel.medicines.collectAsStateWithLifecycle(initialValue = emptyList())
+    val aisles by viewModel.aisles.collectAsStateWithLifecycle(initialValue = emptyList())
     val medicine = medicines.find { it.id == id } ?: return
     var nameLocal by remember { mutableStateOf(medicine.name) }
 
@@ -204,11 +204,14 @@ fun MedicineDetailScreen(
 
 
                     if (modifiedDetails == "Nothing was modified") {
-                        Toast.makeText(context,
-                            context.getString(R.string.you_haven_t_modified_anything), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.you_haven_t_modified_anything),
+                            Toast.LENGTH_SHORT
+                        ).show()
                         return@Button
                     }
-                    
+
                     viewModel.modifyMedicine(
                         medicine.id,
                         nameLocal,
@@ -280,7 +283,13 @@ private fun whatIsModified(
         modifications.add(context.getString(R.string.name_from_to, medicineName, nameLocal))
     }
     if (selectedOptionText != medicineAisle) {
-        modifications.add(context.getString(R.string.aisle_from_to, medicineAisle, selectedOptionText))
+        modifications.add(
+            context.getString(
+                R.string.aisle_from_to,
+                medicineAisle,
+                selectedOptionText
+            )
+        )
     }
     if (stockLocal != medicineStock) {
         modifications.add(context.getString(R.string.stock_from_to, medicineStock, stockLocal))

@@ -21,12 +21,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.firebase.ui.auth.AuthUI
 import com.openclassrooms.rebonnte.domain.Aisle
 
@@ -38,7 +38,7 @@ fun AisleScreen(
     navigateToLogin: () -> Unit,
     goToDetail: (String) -> Unit
 ) {
-    val aisles by viewModel.aisles.collectAsState(initial = emptyList())
+    val aisles by viewModel.aisles.collectAsStateWithLifecycle(initialValue = emptyList())
 
     Scaffold(
         topBar =

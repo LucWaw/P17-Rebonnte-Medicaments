@@ -16,13 +16,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.openclassrooms.rebonnte.domain.Medicine
 import com.openclassrooms.rebonnte.ui.medicine.MedicineViewModel
 
@@ -34,7 +34,7 @@ fun AisleDetailScreen(
     navigateToMedicineDetail: (String) -> Unit,
     viewModel: MedicineViewModel = hiltViewModel()
 ) {
-    val medicines by viewModel.medicines.collectAsState(initial = emptyList())
+    val medicines by viewModel.medicines.collectAsStateWithLifecycle(initialValue = emptyList())
     val filteredMedicines = medicines.filter { it.nameAisle == name }
 
     Scaffold { paddingValues ->

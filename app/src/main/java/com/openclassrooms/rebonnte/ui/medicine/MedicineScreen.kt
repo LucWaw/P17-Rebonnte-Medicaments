@@ -32,7 +32,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,6 +44,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.openclassrooms.rebonnte.domain.Medicine
 import com.openclassrooms.rebonnte.repository.OrderFilter
 
@@ -55,7 +55,7 @@ fun MedicineScreen(
     goToDetail: (String) -> Unit,
     addMedicine: () -> Unit
 ) {
-    val medicines by viewModel.medicines.collectAsState(initial = emptyList())
+    val medicines by viewModel.medicines.collectAsStateWithLifecycle(initialValue = emptyList())
 
     Scaffold(
         topBar =
