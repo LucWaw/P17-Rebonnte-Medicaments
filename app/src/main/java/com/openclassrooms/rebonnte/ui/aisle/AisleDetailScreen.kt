@@ -41,7 +41,7 @@ fun AisleDetailScreen(
     onBackClick : () -> Unit,
     viewModel: MedicineViewModel = hiltViewModel()
 ) {
-    val medicines by viewModel.medicines.collectAsStateWithLifecycle(initialValue = emptyList())
+    val medicines by viewModel.getMedicines().collectAsStateWithLifecycle(emptyList())
     val filteredMedicines = medicines.filter { it.nameAisle == name }
 
     Scaffold(
