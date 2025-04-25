@@ -18,6 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.ErrorCodes
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
@@ -32,7 +33,7 @@ fun SignInScreen(
     var retry by remember { mutableStateOf(false) }
     if (retry == false) {
         Box(
-            modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center
+            modifier = modifier.fillMaxSize().testTag("InProgress"), contentAlignment = Alignment.Center
         ) {
             CircularProgressIndicator()
         }

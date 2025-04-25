@@ -1,0 +1,155 @@
+package com.openclassrooms.rebonnte
+
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isDisplayed
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToNode
+import androidx.compose.ui.test.performTextInput
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.replaceText
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withHint
+import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+
+@RunWith(AndroidJUnit4::class)
+class AddMedicineTest {
+    @get:Rule
+    val composeTestRule = createAndroidComposeRule<MainActivity>()
+
+    @Test
+    fun testAddMedicine() {
+
+        onView(withHint("Email")).perform(click())
+
+        onView(withHint("Email")).perform(replaceText("fakehhkgugugugufugubkdt@mail.com"))
+
+        onView(withText("SIGN IN")).perform(click())
+
+        onView(withHint("Password")).perform(replaceText("Gjgjgjvkfyfuvk"))
+
+        onView(withText("SIGN IN")).check(matches(isCompletelyDisplayed())).perform(click())
+
+
+
+        composeTestRule
+            .onNodeWithText("Medicine")
+            .performClick()
+
+        composeTestRule.waitUntil(timeoutMillis = 50000) {
+            composeTestRule
+                .onNodeWithTag(
+                    "addMedicineFabButton"
+                )
+                .isDisplayed()
+        }
+        composeTestRule
+            .onNodeWithTag("addMedicineFabButton")
+            .performClick()
+
+        composeTestRule.waitUntil(timeoutMillis = 50000) {
+            composeTestRule
+                .onNodeWithTag(
+                    "MedicineNameField"
+                )
+                .isDisplayed()
+        }
+
+        composeTestRule
+            .onNodeWithTag(
+                "MedicineNameField"
+            ).performTextInput("Paracétamol")
+
+
+        composeTestRule
+            .onNodeWithText("Select an Aisle")
+            .performClick()
+
+
+        composeTestRule
+            .onNodeWithText("Main aisle")
+            .performClick()
+
+
+        composeTestRule.onNodeWithText("Stock Quantity")
+            .performTextInput("10")
+
+
+        //Click on the "save" button
+        composeTestRule
+            .onNodeWithText("Save Medicine")
+            .performClick()
+
+        composeTestRule.waitUntil(timeoutMillis = 50000) {
+            composeTestRule.onNodeWithTag("LazyMedicine")
+                .isDisplayed()
+        }
+
+
+        composeTestRule.waitUntil(timeoutMillis = 50000) {
+            try {
+                composeTestRule.onNodeWithTag("LazyMedicine")
+                    .performScrollToNode(hasText("Paracétamol"))
+            } catch (_: Exception) {
+                println("testAddEvent : LazyEvent not found")
+            } catch (_: AssertionError) {
+                println("testAddEvent : LazyEvent not found")
+            }
+
+            composeTestRule
+                .onNodeWithText("Paracétamol")
+                .isDisplayed()
+        }
+
+        composeTestRule
+            .onNodeWithText("Paracétamol")
+            .performClick()
+
+        composeTestRule.waitUntil(timeoutMillis = 50000) {
+            composeTestRule
+                .onNodeWithTag("deleteMedicine")
+                .isDisplayed()
+        }
+
+        composeTestRule
+            .onNodeWithTag("deleteMedicine")
+            .performClick()
+
+        composeTestRule.waitUntil(timeoutMillis = 50000) {
+            composeTestRule
+                .onNodeWithText("Yes")
+                .isDisplayed()
+        }
+
+        composeTestRule.onNodeWithText("Yes").performClick()
+
+        composeTestRule.waitUntil(timeoutMillis = 50000) {
+            composeTestRule
+                .onNodeWithTag("LazyMedicine")
+                .isDisplayed()
+        }
+
+        composeTestRule.onNodeWithText("Account").performClick()
+
+        composeTestRule.waitUntil(timeoutMillis = 50000) {
+            composeTestRule
+                .onNodeWithText("Sign out")
+                .isDisplayed()
+        }
+
+        composeTestRule
+            .onNodeWithText("Sign out")
+            .performClick()
+
+    }
+
+
+}

@@ -77,7 +77,7 @@ class FirebaseApi {
                 val documents = snapshot?.documents ?: emptyList()
 
                 // Lancement d'une coroutine pour charger les historiques de chaque médicament en parallèle
-                CoroutineScope(Dispatchers.IO).launch {
+                this.launch {
                     val medicineList = documents.map { document ->
                         // Conversion du document Firestore en objet Medicine, avec récupération de l'ID
                         val medicine =
@@ -117,7 +117,7 @@ class FirebaseApi {
         getAisleCollection().add(aisle)
     }
 
-    fun addMedicine(medicine: Medicine) {
+    fun addMedicine(medicine: MedicineDto) {
         getMedecineCollection().add(medicine)
     }
 

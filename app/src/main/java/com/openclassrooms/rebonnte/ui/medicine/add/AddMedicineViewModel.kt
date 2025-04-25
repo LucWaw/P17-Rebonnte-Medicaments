@@ -3,6 +3,7 @@ package com.openclassrooms.rebonnte.ui.medicine.add
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.openclassrooms.rebonnte.domain.Medicine
+import com.openclassrooms.rebonnte.repository.MedicineDto
 import com.openclassrooms.rebonnte.repository.StockRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -102,11 +103,10 @@ class AddMedicineViewModel @Inject constructor(
             return false
         }
 
-        val medicine = Medicine(
+        val medicine = MedicineDto(
             name = currentState.name.trim(),
             nameAisle = currentState.selectedAisleName,
             stock = stockValue
-            // Add other Medicine fields if necessary, potentially from uiState or defaults
         )
 
         viewModelScope.launch {

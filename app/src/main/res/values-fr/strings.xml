@@ -38,4 +38,5 @@
     <string name="no_aisles_available">Pas d\'allées disponibles</string>
     <string name="add_aisle_title">Ajouter Une Nouvelle Allée</string>
     <string name="validate_aisle">Valider</string>
+    <string name="sign_in_cancelled">Connexion Annulé</string>
 </resources>

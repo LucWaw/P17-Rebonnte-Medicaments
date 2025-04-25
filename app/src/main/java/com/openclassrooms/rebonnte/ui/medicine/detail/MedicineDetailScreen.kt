@@ -32,7 +32,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -44,9 +46,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.gms.tasks.Task
@@ -74,6 +78,42 @@ fun MedicineDetailScreen(
     var stockLocal by remember { mutableIntStateOf(medicine.stock) }
     var context = LocalContext.current
 
+    var showDialog by remember { mutableStateOf(false) }
+
+    if (showDialog) {
+        DeleteMedicineDialogCustom(
+            onDismissRequest = { showDialog = false },
+            onConfirmDelete = {
+                showDialog = false
+                viewModel.deleteMedicine(id)
+                    .addOnSuccessListener { innerTask ->
+                        innerTask?.addOnSuccessListener {
+                            onBackClick()
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.deleted_with_success),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }?.addOnFailureListener {
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.delete_error_database),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.delete_error_history),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+            }
+        )
+    }
+
+
     Scaffold(
         topBar =
             {
@@ -91,13 +131,8 @@ fun MedicineDetailScreen(
                     },
                     actions =
                         {
-                            IconButton(onClick = {
-                                openDeleteDialog(
-                                    id,
-                                    viewModel::deleteMedicine,
-                                    onBackClick,
-                                    context
-                                )
+                            IconButton(modifier = Modifier.testTag("deleteMedicine"), onClick = {
+                                showDialog = true
                             }) {
                                 Icon(
                                     imageVector = Icons.Filled.Delete,
@@ -303,43 +338,49 @@ private fun whatIsModified(
 }
 
 
-private fun openDeleteDialog(
-    medicineId: String,
-    deleteMedicine: (String) -> Task<Task<Void?>?>,
-    onBackClick: () -> Unit,
-    context: Context
+@Composable
+fun DeleteMedicineDialogCustom(
+    onDismissRequest: () -> Unit,
+    onConfirmDelete: () -> Unit
 ) {
-    AlertDialog.Builder(context)
-        .setMessage(R.string.popup_message_confirmation_delete_medicine)
-        .setPositiveButton(
-            R.string.popup_message_choice_yes
-        ) { _, _ ->
-            deleteMedicine(medicineId)
-                .addOnSuccessListener { innerTask ->
-                    innerTask?.addOnSuccessListener {
-                        onBackClick()
-                        Toast.makeText(
-                            context,
-                            context.getString(R.string.deleted_with_success), Toast.LENGTH_SHORT
-                        ).show()
-                    }?.addOnFailureListener {
-                        Toast.makeText(
-                            context,
-                            context.getString(R.string.delete_error_database), Toast.LENGTH_SHORT
-                        ).show()
+    Dialog(onDismissRequest = onDismissRequest) {
+        Surface(
+            shape = MaterialTheme.shapes.medium,
+            tonalElevation = 4.dp,
+            color = MaterialTheme.colorScheme.surface,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(24.dp)
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Text(
+                    text = stringResource(id = R.string.popup_message_confirmation_delete_medicine),
+                    style = MaterialTheme.typography.titleMedium
+                )
+
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextButton(onClick = onDismissRequest) {
+                        Text(text = stringResource(id = R.string.popup_message_choice_no))
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    TextButton(onClick = onConfirmDelete) {
+                        Text(text = stringResource(id = R.string.popup_message_choice_yes))
                     }
                 }
-                .addOnFailureListener {
-                    Toast.makeText(
-                        context,
-                        context.getString(R.string.delete_error_history), Toast.LENGTH_SHORT
-                    ).show()
-                }
-
+            }
         }
-        .setNegativeButton(R.string.popup_message_choice_no, null)
-        .show()
+    }
 }
+
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable

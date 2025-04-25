@@ -20,7 +20,7 @@ class StockRepository @Inject constructor(private val firebaseApi: FirebaseApi) 
         firebaseApi.addAisle(aisle)
     }
 
-    fun addMedicine(medicine: Medicine) {
+    fun addMedicine(medicine: MedicineDto) {
         firebaseApi.addMedicine(medicine)
     }
 
