@@ -63,7 +63,7 @@ fun AisleScreen(
         ) {
             items(aisles) { aisle ->
                 AisleItem(aisle = aisle, onClick = {
-                    goToDetail(aisle.name)
+                    goToDetail(aisle.id)
                 })
             }
         }

@@ -17,12 +17,25 @@ import javax.inject.Inject
 class AisleDetailViewModel @Inject constructor(private val stockRepository: StockRepository) :
     ViewModel() {
     private val _currentFilter = MutableStateFlow(Pair(OrderFilter.NONE, ""))
+    var aisles = stockRepository.aisles
 
 
     fun getMedicines(): Flow<List<Medicine>> {
         return _currentFilter.flatMapLatest { (filter, filterString) ->
             stockRepository.medicines(filter, filterString)
         }
+    }
+
+    fun deleteWithoutMedicine(aisleName: String) {
+        stockRepository.deleteAisleWithoutMedicine(aisleName)
+    }
+
+    fun deleteAisleAndAllMedicine(aisleName: String) {
+        stockRepository.deleteAisleAndAllMedicine(aisleName)
+    }
+
+    fun deleteByMovingAllMedicine(aisleName: String, targetAisleName: String) {
+        stockRepository.deleteByMovingAllMedicine(aisleName, targetAisleName)
     }
 
 }

@@ -9,8 +9,6 @@ import com.google.firebase.firestore.snapshots
 import com.openclassrooms.rebonnte.domain.Aisle
 import com.openclassrooms.rebonnte.domain.History
 import com.openclassrooms.rebonnte.domain.Medicine
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -38,7 +36,12 @@ class FirebaseApi {
             .orderBy("name")
             .snapshots()
             .map { querySnapshot ->
-                querySnapshot.toObjects(Aisle::class.java)
+                querySnapshot.documents.mapNotNull { document ->
+                    document.toObject(Aisle::class.java)?.copy(
+                        id = document.id
+                    )
+                }
+
             }
     }
 
@@ -113,7 +116,9 @@ class FirebaseApi {
     }
 
     fun addAisle(nameAisle: String) {
-        val aisle = Aisle(nameAisle)
+        val aisle = Aisle(name = nameAisle, id = "")
+
+
         getAisleCollection().add(aisle)
     }
 
@@ -156,6 +161,25 @@ class FirebaseApi {
             // Après avoir supprimé les documents de l'historique, on supprime le document du médicament
             medicineRef.delete()
         }
+    }
+
+
+    /**
+     * Supprime une allée sans médicaments associés.
+     *
+     * @param aisleName Le nom de l'allée à supprimer.
+     * @return Une tâche indiquant le résultat de l'opération.
+     */
+    fun deleteAisleWithoutMedicine(aisleName: String): Task<Void?> {
+        TODO("Not yet implemented")
+    }
+
+    fun deleteAisleAndAllMedicine(aisleName: String): Task<Void?> {
+        TODO("Not yet implemented")
+    }
+
+    fun deleteByMovingAllMedicine(aisleName: String, targetAisleName: String): Task<Void?> {
+        TODO("Not yet implemented")
     }
 
 

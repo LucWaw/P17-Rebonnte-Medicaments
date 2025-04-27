@@ -30,9 +30,9 @@ import androidx.navigation.navArgument
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.openclassrooms.rebonnte.ui.account.SignInScreen
-import com.openclassrooms.rebonnte.ui.aisle.detail.AisleDetailScreen
 import com.openclassrooms.rebonnte.ui.aisle.AisleScreen
 import com.openclassrooms.rebonnte.ui.aisle.add.AddAisleScreen
+import com.openclassrooms.rebonnte.ui.aisle.detail.AisleDetailScreen
 import com.openclassrooms.rebonnte.ui.medicine.MedicineScreen
 import com.openclassrooms.rebonnte.ui.medicine.add.AddMedicineScreen
 import com.openclassrooms.rebonnte.ui.medicine.detail.MedicineDetailScreen
@@ -203,11 +203,11 @@ fun MyApp() {
                     }
 
                 }
-                composable("aisleDetail/{aisleName}") { backStackEntry ->
-                    val aisleName = backStackEntry.arguments?.getString("aisleName")
-                    if (aisleName != null) {
+                composable("aisleDetail/{aisleId}") { backStackEntry ->
+                    val aisleId = backStackEntry.arguments?.getString("aisleId")
+                    if (aisleId != null) {
                         AisleDetailScreen(
-                            name = aisleName,
+                            id = aisleId,
                             onBackClick = {
                                 navController.popBackStack()
                             },
