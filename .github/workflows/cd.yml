@@ -29,11 +29,11 @@ jobs:
     - name: add keystore
       run: |
         mkdir -p ./app/keystore
-        touch ./app/keystore/Eventorias_app_keystore_file.jks
+        touch ./app/keystore/Rebonnte_app_keystore_file.jks
     - name: Decode Keystore
       env:
           ENCODED_STRING: ${{ secrets.KEYSTORE }}
-      run: echo $ENCODED_STRING | base64 -di > ./app/keystore/Eventorias_app_keystore_file.jks
+      run: echo $ENCODED_STRING | base64 -di > ./app/keystore/Rebonnte_app_keystore_file.jks
     - name: build release 
       run: ./gradlew assembleRelease
       env:
