@@ -33,7 +33,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -54,6 +53,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.domain.History
+import com.openclassrooms.rebonnte.ui.component.SimpleDialogContent
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -350,33 +350,11 @@ fun DeleteMedicineDialogCustom(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            Column(
-                modifier = Modifier
-                    .padding(24.dp)
-                    .fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Text(
-                    text = stringResource(id = R.string.popup_message_confirmation_delete_medicine),
-                    style = MaterialTheme.typography.titleMedium
-                )
-
-                Row(
-                    horizontalArrangement = Arrangement.End,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    TextButton(onClick = onDismissRequest) {
-                        Text(text = stringResource(id = R.string.popup_message_choice_no))
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    TextButton(onClick = onConfirmDelete) {
-                        Text(text = stringResource(id = R.string.popup_message_choice_yes))
-                    }
-                }
-            }
+            SimpleDialogContent(onDismissRequest, onConfirmDelete, stringResource(R.string.popup_message_confirmation_delete_medicine))
         }
     }
 }
+
 
 
 

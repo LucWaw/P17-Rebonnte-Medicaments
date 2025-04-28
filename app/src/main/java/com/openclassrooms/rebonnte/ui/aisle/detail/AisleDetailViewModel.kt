@@ -1,6 +1,7 @@
 package com.openclassrooms.rebonnte.ui.aisle.detail
 
 import androidx.lifecycle.ViewModel
+import com.google.android.gms.tasks.Task
 import com.openclassrooms.rebonnte.domain.Medicine
 import com.openclassrooms.rebonnte.repository.OrderFilter
 import com.openclassrooms.rebonnte.repository.StockRepository
@@ -26,16 +27,16 @@ class AisleDetailViewModel @Inject constructor(private val stockRepository: Stoc
         }
     }
 
-    fun deleteWithoutMedicine(aisleName: String) {
-        stockRepository.deleteAisleWithoutMedicine(aisleName)
+    fun deleteWithoutMedicine(aisleId: String): Task<Void?> {
+        return stockRepository.deleteAisleWithoutMedicine(aisleId)
     }
 
-    fun deleteAisleAndAllMedicine(aisleName: String) {
-        stockRepository.deleteAisleAndAllMedicine(aisleName)
+    fun deleteAisleAndAllMedicine(aisleId: String, aisleName : String): Task<Task<Void?>?> {
+        return stockRepository.deleteAisleAndAllMedicine(aisleId, aisleName)
     }
 
-    fun deleteByMovingAllMedicine(aisleName: String, targetAisleName: String) {
-        stockRepository.deleteByMovingAllMedicine(aisleName, targetAisleName)
+    fun deleteByMovingAllMedicine(aisleId: String, targetAisleName: String, aisleName : String): Task<Task<Void?>?> {
+        return stockRepository.deleteByMovingAllMedicine(aisleId, targetAisleName, aisleName)
     }
 
 }

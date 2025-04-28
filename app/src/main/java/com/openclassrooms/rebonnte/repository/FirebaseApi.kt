@@ -31,17 +31,22 @@ class FirebaseApi {
         return FirebaseFirestore.getInstance().collection(MEDICINE_COLLECTION_NAME)
     }
 
+    /**
+     * Récupère la liste des allées en temps réel, triée par nom. avec Main aisle en premier.
+     *
+     * @return Un Flow émettant une liste d'allées mise à jour en temps réel.
+     */
     fun getAllAisles(): Flow<List<Aisle>> {
         return getAisleCollection()
             .orderBy("name")
             .snapshots()
-            .map { querySnapshot ->
-                querySnapshot.documents.mapNotNull { document ->
-                    document.toObject(Aisle::class.java)?.copy(
-                        id = document.id
-                    )
+            .map { snapshot ->
+                // Conversion des documents Firestore en objets Aisle
+                val aisles = snapshot.documents.map { document ->
+                    document.toObject(Aisle::class.java)!!.copy(id = document.id)
                 }
-
+                // Tri des allées pour que "Main aisle" soit en premier
+                aisles.sortedBy { if (it.name == "Main aisle") 0 else 1 }
             }
     }
 
@@ -167,19 +172,76 @@ class FirebaseApi {
     /**
      * Supprime une allée sans médicaments associés.
      *
-     * @param aisleName Le nom de l'allée à supprimer.
+     * @param aisleId Le nom de l'allée à supprimer.
      * @return Une tâche indiquant le résultat de l'opération.
      */
-    fun deleteAisleWithoutMedicine(aisleName: String): Task<Void?> {
-        TODO("Not yet implemented")
+    fun deleteAisleWithoutMedicine(aisleId: String): Task<Void?> {
+        return getAisleCollection().document(aisleId).delete()
     }
 
-    fun deleteAisleAndAllMedicine(aisleName: String): Task<Void?> {
-        TODO("Not yet implemented")
+    /**
+     * Supprime une allée et tous les médicaments associés.
+     *
+     * @param aisleId Le nom de l'allée à supprimer.
+     * @return Une tâche indiquant le résultat de l'opération.
+     */
+    fun deleteAisleAndAllMedicine(aisleId: String, nameAisle: String): Task<Task<Void?>?> {
+        // Récupère la référence de l'allée à supprimer
+        val aisleRef = getAisleCollection().document(aisleId)
+
+        // Récupère la sous-collection "medicines" de l'allée
+        val medicinesRef = getMedecineCollection()
+
+        // Supprime tous les documents de la collection "medicines" ayant l'allée correspondante
+        return medicinesRef.get().continueWith { task ->
+            if (task.isSuccessful) {
+                // Récupère les documents de la collection "medicines"
+                val medicineDocs = task.result?.documents ?: emptyList()
+                // Supprime chaque document de la collection "medicines" ayant l'allée correspondante
+                medicineDocs.forEach { doc ->
+                    if (doc.getString("nameAisle") == nameAisle) {
+                        deleteMedicine(doc.id)
+                    }
+                }
+            }
+        }.continueWith { task ->
+            // Après avoir supprimé les documents des médicaments, on supprime le document de l'allée
+            aisleRef.delete()
+        }
     }
 
-    fun deleteByMovingAllMedicine(aisleName: String, targetAisleName: String): Task<Void?> {
-        TODO("Not yet implemented")
+    /**
+     * Déplace tous les médicaments d'une allée vers une autre puis supprime l'allée source.
+     *
+     * @param aisleId L'ID de l'allée source.
+     * @param targetAisleName L'ID de l'allée cible.
+     * @return Une tâche indiquant le résultat de l'opération.
+     */
+    fun deleteByMovingAllMedicine(aisleId: String, targetAisleName: String, nameAisle: String): Task<Task<Void?>?> {
+        // Récupère la référence de l'allée à supprimer
+        val aisleRef = getAisleCollection().document(aisleId)
+
+        // Récupère la sous-collection "medicines" de l'allée
+        val medicinesRef = getMedecineCollection()
+
+        // Supprime tous les documents de la collection "medicines" ayant l'allée correspondante
+        return medicinesRef.get().continueWith { task ->
+            if (task.isSuccessful) {
+                // Récupère les documents de la collection "medicines"
+                val medicineDocs = task.result?.documents ?: emptyList()
+
+                // Met à jour chaque document de la collection "medicines" pour changer l'allée
+                medicineDocs.forEach { doc ->
+
+                    if (doc.getString("nameAisle") == nameAisle) {
+                        doc.reference.update("nameAisle", targetAisleName) // Mettre à jour l'allée
+                    }
+                }
+            }
+        }.continueWith { task ->
+            // Après avoir mis à jour les documents des médicaments, on supprime le document de l'allée
+            aisleRef.delete()
+        }
     }
 
 

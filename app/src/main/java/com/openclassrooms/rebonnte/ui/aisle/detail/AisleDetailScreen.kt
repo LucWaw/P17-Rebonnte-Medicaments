@@ -1,9 +1,11 @@
 package com.openclassrooms.rebonnte.ui.aisle.detail
 
+import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,12 +18,17 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -33,6 +40,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -41,8 +49,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.google.android.gms.tasks.Task
 import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.domain.Medicine
+import com.openclassrooms.rebonnte.ui.component.SimpleDialogContent
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -69,13 +79,16 @@ fun AisleDetailScreen(
             },
             onConfirmDeleteAisleAndAllMedicine = {
                 showDeleteDialog = false
-                viewModel.deleteAisleAndAllMedicine(id)
+                viewModel.deleteAisleAndAllMedicine(id, aisle?.name ?: "")
             },
             onConfirmDeleteByMovingAllMedicine = { nameTargetAisle ->
                 showDeleteDialog = false
-                viewModel.deleteByMovingAllMedicine(id, nameTargetAisle)
+                viewModel.deleteByMovingAllMedicine(id, nameTargetAisle, aisle?.name ?: "")
             },
             medicines = filteredMedicines,
+            onBackClick = onBackClick,
+            aisleOptionsAll = aisles.map { it.name },
+            actualAisle = aisle?.name ?: "",
         )
     }
 
@@ -97,14 +110,17 @@ fun AisleDetailScreen(
                     },
                 actions =
                     {
-                        IconButton(modifier = Modifier.testTag("deleteAisle"), onClick = {
-                            showDeleteDialog = true
-                        }) {
-                            Icon(
-                                imageVector = Icons.Filled.Delete,
-                                contentDescription = stringResource(R.string.delete_aisle)
-                            )
+                        if (aisle?.name != "Main aisle") {
+                            IconButton(modifier = Modifier.testTag("deleteAisle"), onClick = {
+                                showDeleteDialog = true
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Filled.Delete,
+                                    contentDescription = stringResource(R.string.delete_aisle)
+                                )
+                            }
                         }
+
                     }
             )
         }
@@ -123,55 +139,192 @@ fun AisleDetailScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DeleteAisleDialogCustom(
     modifier: Modifier = Modifier,
-    medicines : List<Medicine>,
+    medicines: List<Medicine>,
     onDismissRequest: () -> Unit,
-    onConfirmSimpleDeleteNoMedicine: () -> Unit,
-    onConfirmDeleteAisleAndAllMedicine: () -> Unit,
-    onConfirmDeleteByMovingAllMedicine: (nameTargetAisle: String) -> Unit
+    onBackClick: () -> Unit,
+    onConfirmSimpleDeleteNoMedicine: () -> Task<Void?>,
+    onConfirmDeleteAisleAndAllMedicine: () -> Task<Task<Void?>?>,
+    onConfirmDeleteByMovingAllMedicine: (nameTargetAisle: String) -> Task<Task<Void?>?>,
+    aisleOptionsAll: List<String>,
+    actualAisle: String,
 ) {
-
+    val aisleOptions = aisleOptionsAll.filter { it != actualAisle }
     Dialog(
         onDismissRequest = onDismissRequest
     ) {
-        if (medicines.isEmpty()){
+        Surface(
+            shape = MaterialTheme.shapes.medium,
+            tonalElevation = 4.dp,
+            color = MaterialTheme.colorScheme.surface,
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            if (medicines.isEmpty()) {
+                SimpleDialogContent(
+                    onDismissRequest = onDismissRequest,
+                    onConfirmDelete = {
+                        onConfirmSimpleDeleteNoMedicine()
+                        onBackClick()
+                    },
+                    title = stringResource(R.string.delete_aisle_without_medicine)
+                )
+            } else {
+                val deleteALl = stringResource(R.string.delete_all_medicine)
+                val movingAll = stringResource(R.string.moving_all_medicine)
 
-        } else{
-            val radioOptions = listOf("MovingAllMedicine", "DeleteAllMedicine")
-            val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[0]) }
-            // Note that Modifier.selectableGroup() is essential to ensure correct accessibility behavior
-            Column(Modifier.selectableGroup()) {
-                radioOptions.forEach { text ->
-                    Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .height(56.dp)
-                            .selectable(
-                                selected = (text == selectedOption),
-                                onClick = { onOptionSelected(text) },
-                                role = Role.RadioButton
-                            )
-                            .padding(horizontal = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        RadioButton(
-                            selected = (text == selectedOption),
-                            onClick = null // null recommended for accessibility with screen readers
-                        )
-                        Text(
-                            text = text,
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.padding(start = 16.dp)
-                        )
+                data class DeleteRadioOptions(
+                    val name: String,
+                    val method: () -> Task<Task<Void?>?>
+                )
+
+                var selectedAisle by remember { mutableStateOf(aisleOptions[0]) }
+
+                val deleteRadioOptions = listOf(
+                    DeleteRadioOptions(deleteALl) {
+                        onConfirmDeleteAisleAndAllMedicine()
+                    },
+                    DeleteRadioOptions(movingAll) {
+                        onConfirmDeleteByMovingAllMedicine(selectedAisle)
                     }
+                )
+                val (selectedOption, onOptionSelected) = remember {
+                    mutableStateOf(
+                        deleteRadioOptions[0].name
+                    )
+                }
+                Column {
+                    // Note that Modifier.selectableGroup() is essential to ensure correct accessibility behavior
+                    Column(Modifier.selectableGroup()) {
+                        deleteRadioOptions.forEach { options ->
+                            Row(
+                                Modifier
+                                    .fillMaxWidth()
+                                    .height(100.dp)
+                                    .selectable(
+                                        selected = (options.name == selectedOption),
+                                        onClick = { onOptionSelected(options.name) },
+                                        role = Role.RadioButton
+                                    )
+                                    .padding(horizontal = 16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                RadioButton(
+                                    selected = (options.name == selectedOption),
+                                    onClick = null // null recommended for accessibility with screen readers
+                                )
+                                if (options.name == movingAll) {
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .fillMaxHeight()
+                                            .padding(start = 16.dp),
+                                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                                    ) {
+                                        Text(
+                                            text = options.name,
+                                            style = MaterialTheme.typography.bodyLarge
+                                        )
+                                        var isAisleDropdownExpanded by remember {
+                                            mutableStateOf(
+                                                false
+                                            )
+                                        }
+
+                                        ExposedDropdownMenuBox(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .fillMaxHeight(),
+                                            expanded = isAisleDropdownExpanded,
+                                            onExpandedChange = {
+                                                isAisleDropdownExpanded = !isAisleDropdownExpanded
+                                            },
+                                        ) {
+                                            OutlinedTextField(
+                                                modifier = Modifier
+                                                    .menuAnchor()
+                                                    .fillMaxWidth(),
+                                                readOnly = true,
+                                                value = selectedAisle.ifEmpty { stringResource(R.string.select_aisle_placeholder) },
+                                                onValueChange = {},
+                                                label = { Text(stringResource(R.string.aisle_label)) },
+                                                trailingIcon = {
+                                                    ExposedDropdownMenuDefaults.TrailingIcon(
+                                                        expanded = isAisleDropdownExpanded
+                                                    )
+                                                },
+                                                colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
+                                            )
+
+                                            ExposedDropdownMenu(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                expanded = isAisleDropdownExpanded,
+                                                onDismissRequest = {
+                                                    isAisleDropdownExpanded = false
+                                                },
+                                            ) {
+                                                aisleOptions.forEach { selectionOption ->
+                                                    DropdownMenuItem(
+                                                        modifier = Modifier.fillMaxWidth(),
+                                                        text = { Text(selectionOption) },
+                                                        onClick = {
+                                                            selectedAisle = selectionOption
+                                                            isAisleDropdownExpanded = false
+                                                        },
+                                                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                                                    )
+                                                }
+
+                                            }
+                                        }
+
+
+                                    }
+                                } else {
+                                    Text(
+                                        text = options.name,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        modifier = Modifier.padding(start = 16.dp)
+                                    )
+                                }
+
+                            }
+                        }
+                    }
+                    val context = LocalContext.current
+                    val string = getStringDelete(context, selectedOption, deleteALl, movingAll, selectedAisle)
+
+                    SimpleDialogContent(
+                        onDismissRequest = onDismissRequest,
+                        onConfirmDelete = {
+                            val selectedOption =
+                                deleteRadioOptions.find { it.name == selectedOption }
+                            selectedOption?.method?.invoke()
+                            onBackClick()
+                        },
+                        title = stringResource(
+                            R.string.do_you_really_want_to_do_delete_the_aisle, string
+                        )
+                    )
                 }
             }
         }
     }
 
 }
+
+fun getStringDelete(context: Context, selectedOption: String, deleteALl: String, movingAll: String, selectedAisle : String): String {
+    return when (selectedOption) {
+        deleteALl -> context.getString(R.string.by_deleting_all_medicine)
+        movingAll -> context.getString(R.string.by_moving_all_medicine, selectedAisle)
+        else -> ""
+    }
+}
+
 
 @Composable
 fun MedicineItem(medicine: Medicine, onClick: (String) -> Unit) {

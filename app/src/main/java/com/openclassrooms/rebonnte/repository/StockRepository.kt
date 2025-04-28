@@ -36,15 +36,15 @@ class StockRepository @Inject constructor(private val firebaseApi: FirebaseApi) 
         return firebaseApi.deleteMedicine(idMedicine)
     }
 
-    fun deleteAisleWithoutMedicine(aisleName: String) : Task<Void?> {
-        return firebaseApi.deleteAisleWithoutMedicine(aisleName)
+    fun deleteAisleWithoutMedicine(aisleId: String) : Task<Void?> {
+        return firebaseApi.deleteAisleWithoutMedicine(aisleId)
     }
 
-    fun deleteAisleAndAllMedicine(aisleName: String) : Task<Void?> {
-        return firebaseApi.deleteAisleAndAllMedicine(aisleName)
+    fun deleteAisleAndAllMedicine(aisleId: String, nameAisle : String) : Task<Task<Void?>?> {
+        return firebaseApi.deleteAisleAndAllMedicine(aisleId, nameAisle)
     }
 
-    fun deleteByMovingAllMedicine(aisleName: String, targetAisleName: String) : Task<Void?> {
-        return firebaseApi.deleteByMovingAllMedicine(aisleName, targetAisleName)
+    fun deleteByMovingAllMedicine(aisleId: String, targetAisleName: String, nameAisle : String) : Task<Task<Void?>?> {
+        return firebaseApi.deleteByMovingAllMedicine(aisleId, targetAisleName, nameAisle)
     }
 }
