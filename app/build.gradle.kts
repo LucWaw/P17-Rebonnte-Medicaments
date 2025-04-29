@@ -35,11 +35,13 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {
@@ -63,6 +65,10 @@ android {
 }
 
 dependencies {
+
+    //Lazy loading
+    implementation(libs.androidx.paging.compose)
+
 
     implementation(libs.androidx.lifecycle.runtime.compose)
 

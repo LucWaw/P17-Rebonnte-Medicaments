@@ -266,7 +266,7 @@ fun MedicineDetailScreen(
             Spacer(modifier = Modifier.height(8.dp))
             Text(text = "History", style = MaterialTheme.typography.titleLarge)
             LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(medicine.histories, key = { history -> history.id } ) { history ->
+                items(medicine.histories, key = { history -> history.id }) { history ->
                     HistoryItem(history = history)
                 }
             }
@@ -350,12 +350,14 @@ fun DeleteMedicineDialogCustom(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            SimpleDialogContent(onDismissRequest, onConfirmDelete, stringResource(R.string.popup_message_confirmation_delete_medicine))
+            SimpleDialogContent(
+                onDismissRequest,
+                onConfirmDelete,
+                stringResource(R.string.popup_message_confirmation_delete_medicine)
+            )
         }
     }
 }
-
-
 
 
 @RequiresApi(Build.VERSION_CODES.O)

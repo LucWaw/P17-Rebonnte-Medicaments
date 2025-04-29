@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,11 +33,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -46,9 +49,13 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.paging.Pager
+import androidx.paging.LoadState
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import com.openclassrooms.rebonnte.domain.Medicine
 import com.openclassrooms.rebonnte.repository.OrderFilter
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,7 +64,21 @@ fun MedicineScreen(
     goToDetail: (String) -> Unit,
     addMedicine: () -> Unit
 ) {
-    val medicines by viewModel.getMedicines().collectAsStateWithLifecycle(emptyList())
+    val medicines = viewModel.medicinePagingFlow.collectAsLazyPagingItems()
+    val currentFilter by viewModel.currentFilter.collectAsStateWithLifecycle()
+
+    val listState = rememberLazyListState()
+
+    // 4️⃣ À chaque nouveau filtre, scroll au début
+    LaunchedEffect(currentFilter) {
+        snapshotFlow { medicines.loadState.refresh }
+            .filter { it is LoadState.NotLoading }
+            .first()                  // suspend jusqu’à ce que la page soit chargée
+        listState.scrollToItem(0)
+    }
+
+
+
     Scaffold(
         topBar =
             {
@@ -134,15 +155,24 @@ fun MedicineScreen(
 
     ) { paddingValues ->
         LazyColumn(
+            state = listState,
             modifier = Modifier
                 .testTag("LazyMedicine")
                 .padding(paddingValues)
                 .fillMaxSize()
         ) {
-            items(medicines, key = { medicine -> medicine.id } ) { medicine ->
-                MedicineItem(medicine = medicine, onClick = {
-                    goToDetail(medicine.id)
-                })
+            items(
+                medicines.itemCount,
+                key = medicines.itemKey { it.id }
+            ) { index ->
+                val medicine = medicines[index]
+                if (medicine != null) {
+                    MedicineItem(medicine){
+                        goToDetail(medicine.id)
+                    }
+                } else {
+                    MedicinePlaceholder()
+                }
             }
         }
     }
@@ -150,6 +180,16 @@ fun MedicineScreen(
 
 }
 
+@Composable
+fun MedicinePlaceholder(modifier: Modifier = Modifier) {
+    Box(
+        modifier
+            .fillMaxWidth()
+            .height(48.dp)
+    ) {
+        CircularProgressIndicator()
+    }
+}
 
 @Composable
 fun MedicineItem(medicine: Medicine, onClick: () -> Unit) {

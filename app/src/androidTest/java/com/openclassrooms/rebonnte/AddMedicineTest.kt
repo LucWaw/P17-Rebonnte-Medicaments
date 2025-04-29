@@ -28,6 +28,13 @@ class AddMedicineTest {
     @Test
     fun testAddMedicine() {
 
+        // TAKE A SCREEN SHOT to understand the problem
+        // ce serait mieux de pas faire en memeoire pour bien tester l'intégration de firebase
+        // en deux étapes :
+        // 1 en memoire
+        // 2 avec firebase débugging screen shot ou autre
+
+
         onView(withHint("Email")).perform(click())
 
         onView(withHint("Email")).perform(replaceText("fakehhkgugugugufugubkdt@mail.com"))

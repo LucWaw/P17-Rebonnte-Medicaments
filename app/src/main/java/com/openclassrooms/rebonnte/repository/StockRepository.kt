@@ -14,7 +14,17 @@ class StockRepository @Inject constructor(private val firebaseApi: FirebaseApi) 
 
     val aisles: Flow<List<Aisle>> = firebaseApi.getAllAisles()
 
-    fun medicines(orderFilter: OrderFilter, filter : String = "") :  Flow<List<Medicine>> = firebaseApi.getAllMedicines(orderFilter, filter)
+    fun medicinesPager(orderFilter: OrderFilter, filter: String = ""): MedicinePagingSource =
+        MedicinePagingSource(
+            orderFilter,
+            filter
+        )
+
+    fun medicines(orderFilter: OrderFilter, filter : String = ""): Flow<List<Medicine>> {
+        return firebaseApi.getAllMedicines(orderFilter, filter)
+    }
+
+
 
     fun addAisle(aisle: String) {
         firebaseApi.addAisle(aisle)
@@ -24,11 +34,11 @@ class StockRepository @Inject constructor(private val firebaseApi: FirebaseApi) 
         firebaseApi.addMedicine(medicine)
     }
 
-    fun addHistory(medicineId : String, history: History): Task<DocumentReference?> {
+    fun addHistory(medicineId: String, history: History): Task<DocumentReference?> {
         return firebaseApi.addHistory(medicineId, history)
     }
 
-    fun modifyMedicine(medicineId: String, name : String, aisle: String, stock: Int) {
+    fun modifyMedicine(medicineId: String, name: String, aisle: String, stock: Int) {
         firebaseApi.modifyMedicine(medicineId, name, aisle, stock)
     }
 
@@ -36,15 +46,19 @@ class StockRepository @Inject constructor(private val firebaseApi: FirebaseApi) 
         return firebaseApi.deleteMedicine(idMedicine)
     }
 
-    fun deleteAisleWithoutMedicine(aisleId: String) : Task<Void?> {
+    fun deleteAisleWithoutMedicine(aisleId: String): Task<Void?> {
         return firebaseApi.deleteAisleWithoutMedicine(aisleId)
     }
 
-    fun deleteAisleAndAllMedicine(aisleId: String, nameAisle : String) : Task<Task<Void?>?> {
+    fun deleteAisleAndAllMedicine(aisleId: String, nameAisle: String): Task<Task<Void?>?> {
         return firebaseApi.deleteAisleAndAllMedicine(aisleId, nameAisle)
     }
 
-    fun deleteByMovingAllMedicine(aisleId: String, targetAisleName: String, nameAisle : String) : Task<Task<Void?>?> {
+    fun deleteByMovingAllMedicine(
+        aisleId: String,
+        targetAisleName: String,
+        nameAisle: String
+    ): Task<Task<Void?>?> {
         return firebaseApi.deleteByMovingAllMedicine(aisleId, targetAisleName, nameAisle)
     }
 }
