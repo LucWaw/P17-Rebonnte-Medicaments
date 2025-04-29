@@ -61,7 +61,7 @@ fun AisleScreen(
                 .padding(paddingValues)
                 .fillMaxSize()
         ) {
-            items(aisles) { aisle ->
+            items(aisles, key = { aisle -> aisle.id } ) { aisle ->
                 AisleItem(aisle = aisle, onClick = {
                     goToDetail(aisle.id)
                 })

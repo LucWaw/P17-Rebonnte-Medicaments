@@ -1,7 +1,10 @@
 package com.openclassrooms.rebonnte.repository
 
+import androidx.compose.runtime.Immutable
+
+@Immutable
 data class MedicineDto(
-    var name: String = "",
-    var stock: Int = 0,
-    var nameAisle: String = ""
+    val name: String = "",
+    val stock: Int = 0,
+    val nameAisle: String = ""
 )

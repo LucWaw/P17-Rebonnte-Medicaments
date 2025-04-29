@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.Pager
 import com.openclassrooms.rebonnte.domain.Medicine
 import com.openclassrooms.rebonnte.repository.OrderFilter
 
@@ -57,7 +58,6 @@ fun MedicineScreen(
     addMedicine: () -> Unit
 ) {
     val medicines by viewModel.getMedicines().collectAsStateWithLifecycle(emptyList())
-
     Scaffold(
         topBar =
             {
@@ -139,7 +139,7 @@ fun MedicineScreen(
                 .padding(paddingValues)
                 .fillMaxSize()
         ) {
-            items(medicines) { medicine ->
+            items(medicines, key = { medicine -> medicine.id } ) { medicine ->
                 MedicineItem(medicine = medicine, onClick = {
                     goToDetail(medicine.id)
                 })

@@ -1,8 +1,12 @@
 package com.openclassrooms.rebonnte.domain
 
+import androidx.compose.runtime.Immutable
+
+@Immutable //Not in same module that compose usage so need to use Immutable for performance
 class History(
-    var medicineName: String = "",
-    var userId: String = "",
-    var date: Long = 0,
-    var details: String = ""
+    val id: String = "",
+    val medicineName: String = "",
+    val userId: String = "",
+    val date: Long = 0,
+    val details: String = ""
 )

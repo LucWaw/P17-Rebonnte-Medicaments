@@ -266,7 +266,7 @@ fun MedicineDetailScreen(
             Spacer(modifier = Modifier.height(8.dp))
             Text(text = "History", style = MaterialTheme.typography.titleLarge)
             LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(medicine.histories) { history ->
+                items(medicine.histories, key = { history -> history.id } ) { history ->
                     HistoryItem(history = history)
                 }
             }

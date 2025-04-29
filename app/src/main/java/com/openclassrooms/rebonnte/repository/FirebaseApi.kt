@@ -3,6 +3,7 @@ package com.openclassrooms.rebonnte.repository
 import com.google.android.gms.tasks.Task
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query.Direction
 import com.google.firebase.firestore.snapshots
@@ -109,15 +110,23 @@ class FirebaseApi {
 
 
     suspend fun getHistoriesForMedicine(medicineId: String): List<History> {
-        return getMedecineCollection()
+        val history = getMedecineCollection()
             .document(medicineId)
             .collection("history").orderBy(
                 "date",
                 Direction.DESCENDING
             )
             .get()
-            .await()
-            .toObjects(History::class.java)
+            .await().documents.map { element : DocumentSnapshot ->
+                History(
+                    id = element.id,
+                    medicineName = element.getString("medicineName") ?: "",
+                    userId = element.getString("userId") ?: "",
+                    date = element.getLong("date") ?: 0L,
+                    details = element.getString("details") ?: ""
+                )
+            }
+        return history
     }
 
     fun addAisle(nameAisle: String) {

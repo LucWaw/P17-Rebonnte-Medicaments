@@ -130,7 +130,7 @@ fun AisleDetailScreen(
             contentPadding = paddingValues,
             modifier = Modifier.fillMaxSize()
         ) {
-            items(filteredMedicines) { medicine ->
+            items(filteredMedicines, key = { medicine -> medicine.id } ) { medicine ->
                 MedicineItem(medicine = medicine, onClick = { id ->
                     navigateToMedicineDetail(id)
                 })
