@@ -21,7 +21,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Search
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -54,6 +53,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import com.openclassrooms.rebonnte.domain.Medicine
 import com.openclassrooms.rebonnte.repository.OrderFilter
+import com.openclassrooms.rebonnte.ui.component.ItemPlaceholder
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 
@@ -69,7 +69,6 @@ fun MedicineScreen(
 
     val listState = rememberLazyListState()
 
-    // 4️⃣ À chaque nouveau filtre, scroll au début
     LaunchedEffect(currentFilter) {
         snapshotFlow { medicines.loadState.refresh }
             .filter { it is LoadState.NotLoading }
@@ -148,6 +147,7 @@ fun MedicineScreen(
         floatingActionButton = {
             FloatingActionButton(modifier = Modifier.testTag("addMedicineFabButton"), onClick = {
                 addMedicine()
+                medicines.refresh()
             }) {
                 Icon(Icons.Default.Add, contentDescription = "Add")
             }
@@ -171,24 +171,13 @@ fun MedicineScreen(
                         goToDetail(medicine.id)
                     }
                 } else {
-                    MedicinePlaceholder()
+                    ItemPlaceholder()
                 }
             }
         }
     }
 
 
-}
-
-@Composable
-fun MedicinePlaceholder(modifier: Modifier = Modifier) {
-    Box(
-        modifier
-            .fillMaxWidth()
-            .height(48.dp)
-    ) {
-        CircularProgressIndicator()
-    }
 }
 
 @Composable

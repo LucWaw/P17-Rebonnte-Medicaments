@@ -51,9 +51,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.domain.History
 import com.openclassrooms.rebonnte.ui.component.SimpleDialogContent
+import kotlinx.coroutines.coroutineScope
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -68,9 +70,12 @@ fun MedicineDetailScreen(
     onBackClick: () -> Unit,
     viewModel: MedicineDetailViewModel = hiltViewModel()
 ) {
-    val medicines by viewModel.medicines.collectAsStateWithLifecycle(initialValue = emptyList())
+    val medicines = viewModel.medicines.collectAsLazyPagingItems()
     val aisles by viewModel.aisles.collectAsStateWithLifecycle(initialValue = emptyList())
-    val medicine = medicines.find { it.id == id } ?: return
+    var medicine = medicines.itemSnapshotList
+        .items
+        .firstOrNull { it.id == id }
+        ?: return
     var nameLocal by remember { mutableStateOf(medicine.name) }
 
     var stockLocal by remember { mutableIntStateOf(medicine.stock) }
@@ -86,6 +91,7 @@ fun MedicineDetailScreen(
                 viewModel.deleteMedicine(id)
                     .addOnSuccessListener { innerTask ->
                         innerTask?.addOnSuccessListener {
+
                             onBackClick()
                             Toast.makeText(
                                 context,
