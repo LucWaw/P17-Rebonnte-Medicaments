@@ -35,15 +35,17 @@ jobs:
           ENCODED_STRING: ${{ secrets.KEYSTORE }}
       run: echo $ENCODED_STRING | base64 -di > ./app/keystore/Rebonnte_app_keystore_file.jks
     - name: build release 
-      run: ./gradlew assembleRelease
+      run: ./gradlew clean assembleRelease
       env:
           SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
           SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
           SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
+    - name: Check APK path
+      run: ls -R app/build/outputs/
     - name: upload artifact to Firebase App Distribution
       uses: wzieba/Firebase-Distribution-Github-Action@v1.7.1
       with:
         appId: ${{secrets.FIREBASE_APP_ID}}
         serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
         groups: testers
-        file: app/release/app-release.apk
+        file: app/build/outputs/apk/release/app-release.apk
