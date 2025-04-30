@@ -69,4 +69,11 @@ jobs:
           api-level: 29
           ndk: 21.0.6113669
           cmake: 3.10.2.4988404
-          script: ./gradlew connectedCheck
+          script: ./test-ci.sh
+
+      - name: Upload Recording
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Test Recording
+          path: testRecording.mp4
