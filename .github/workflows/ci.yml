@@ -74,13 +74,13 @@ jobs:
       - name: Pull screenshots from emulator
         if: always()
         run: |
-          adb shell ls /storage/emulated/0/Pictures/TestScreenshots || echo "No screenshots found"
-          adb pull /storage/emulated/0/Pictures/TestScreenshots ./screenshots || echo "Nothing to pull"
+          mkdir -p screenshots
+          adb pull /sdcard/Download/TestScreenshots ./screenshots || echo "No screenshots found"
 
-      - name: Upload test screenshots
+      - name: Upload Test Screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Test Screenshots
-          path: screenshots/
+          name: TestScreenshots
+          path: ./screenshots
 
