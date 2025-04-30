@@ -3,7 +3,7 @@ package com.openclassrooms.rebonnte.domain
 import androidx.compose.runtime.Immutable
 
 @Immutable //Not in same module that compose usage so need to use Immutable for performance
-class History(
+data class History(
     val id: String = "",
     val medicineName: String = "",
     val userId: String = "",

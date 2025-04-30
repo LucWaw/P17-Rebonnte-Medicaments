@@ -14,20 +14,13 @@ class StockRepository @Inject constructor(private val firebaseApi: FirebaseApi) 
 
     val aisles: Flow<List<Aisle>> = firebaseApi.getAllAisles()
 
-    fun aislesPager(): AislePagingSource =
-        AislePagingSource()
-
-    fun medicinesPager(orderFilter: OrderFilter, filter: String = ""): MedicinePagingSource =
-        MedicinePagingSource(
-            orderFilter,
-            filter
-        )
-
     fun medicines(orderFilter: OrderFilter, filter : String = ""): Flow<List<Medicine>> {
         return firebaseApi.getAllMedicines(orderFilter, filter)
     }
 
 
+    fun historyPager (medicineId: String): HistoryPagingSource =
+        HistoryPagingSource(medicineId)
 
     fun addAisle(aisle: String) {
         firebaseApi.addAisle(aisle)

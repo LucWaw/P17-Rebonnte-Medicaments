@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
@@ -19,13 +20,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.itemKey
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.openclassrooms.rebonnte.domain.Aisle
-import com.openclassrooms.rebonnte.ui.component.ItemPlaceholder
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,7 +34,7 @@ fun AisleScreen(
     addAisle: () -> Unit,
     goToDetail: (String) -> Unit
 ) {
-    val aisles = viewModel.aisles.collectAsLazyPagingItems()
+    val aisles by viewModel.aisles.collectAsStateWithLifecycle(initialValue = emptyList())
 
     Scaffold(
         topBar =
@@ -49,7 +49,6 @@ fun AisleScreen(
             Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
                 FloatingActionButton(onClick = {
                     addAisle()
-                    aisles.refresh()
                 }) {
                     Icon(Icons.Default.Add, contentDescription = "Add")
                 }
@@ -62,17 +61,9 @@ fun AisleScreen(
                 .padding(paddingValues)
                 .fillMaxSize()
         ) {
-            items(
-                aisles.itemCount,
-                key = aisles.itemKey { it.id }
-            ) { index ->
-                val aisle = aisles[index]
-                if (aisle != null) {
-                    AisleItem (aisle){
-                        goToDetail(aisle.id)
-                    }
-                } else {
-                    ItemPlaceholder()
+            items(aisles, key = { aisle -> aisle.id }) { aisle ->
+                AisleItem(aisle) {
+                    goToDetail(aisle.id)
                 }
             }
         }

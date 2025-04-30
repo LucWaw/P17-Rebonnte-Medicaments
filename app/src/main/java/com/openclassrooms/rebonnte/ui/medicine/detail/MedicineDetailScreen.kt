@@ -14,7 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Delete
@@ -36,6 +36,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -52,10 +53,11 @@ import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.domain.History
+import com.openclassrooms.rebonnte.ui.component.ItemPlaceholder
 import com.openclassrooms.rebonnte.ui.component.SimpleDialogContent
-import kotlinx.coroutines.coroutineScope
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -70,13 +72,22 @@ fun MedicineDetailScreen(
     onBackClick: () -> Unit,
     viewModel: MedicineDetailViewModel = hiltViewModel()
 ) {
-    val medicines = viewModel.medicines.collectAsLazyPagingItems()
+    val medicines by viewModel.medicines.collectAsStateWithLifecycle(emptyList())
     val aisles by viewModel.aisles.collectAsStateWithLifecycle(initialValue = emptyList())
-    var medicine = medicines.itemSnapshotList
-        .items
-        .firstOrNull { it.id == id }
-        ?: return
+    val medicine = medicines.find { it.id == id } ?: return
     var nameLocal by remember { mutableStateOf(medicine.name) }
+
+    val historyItems = viewModel.history.collectAsLazyPagingItems()
+
+    LaunchedEffect(key1 = id) {
+        viewModel.loadHistory(id)
+    }
+    val lazyCollumnSTate = rememberLazyListState()
+
+    LaunchedEffect(historyItems.itemSnapshotList.items.firstOrNull()) {
+        // Déclenché lorsque l’historique est rechargé avec un nouvel item
+        lazyCollumnSTate.animateScrollToItem(0)
+    }
 
     var stockLocal by remember { mutableIntStateOf(medicine.stock) }
     var context = LocalContext.current
@@ -266,14 +277,25 @@ fun MedicineDetailScreen(
                             details = modifiedDetails
                         )
                     )
+                    viewModel.loadHistory(id)
+
+
                 }
             ) { Text(stringResource(R.string.valid_modifications)) }
 
             Spacer(modifier = Modifier.height(8.dp))
             Text(text = "History", style = MaterialTheme.typography.titleLarge)
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(medicine.histories, key = { history -> history.id }) { history ->
-                    HistoryItem(history = history)
+            LazyColumn(state = lazyCollumnSTate, modifier = Modifier.fillMaxSize()) {
+                items(
+                    historyItems.itemCount,
+                    key = historyItems.itemKey { it.id }
+                ) { index ->
+                    val history = historyItems[index]
+                    if (history != null) {
+                        HistoryItem(history)
+                    } else {
+                        ItemPlaceholder()
+                    }
                 }
             }
         }
