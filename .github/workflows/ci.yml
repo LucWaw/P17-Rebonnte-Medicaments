@@ -63,10 +63,20 @@ jobs:
           DATA: ${{ secrets.GOOGLE_SERVICES_JSON }}
         run: echo $DATA > ./app/google-services.json
 
+      - name: Change script permissions
+        run: chmod +x ./test-ci.sh
+
       - name: run tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 29
           ndk: 21.0.6113669
           cmake: 3.10.2.4988404
-          script: ./gradlew connectedCheck
+          script: ./test-ci.sh
+
+      - name: Upload Recording
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Test Recording
+          path: testRecording.mp4
