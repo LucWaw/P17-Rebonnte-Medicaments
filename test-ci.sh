@@ -4,7 +4,7 @@ set -x
 echo "Starting the screen recording..."
 adb shell "screenrecord --bugreport /data/local/tmp/testRecording.mp4 & echo \$! > /data/local/tmp/screenrecord_pid.txt" &
 set +e
-npm run test
+./gradlew connectedCheck
 TEST_STATUS=$?
 echo "Test run completed with status $TEST_STATUS"
 adb shell "kill -2 \$(cat /data/local/tmp/screenrecord_pid.txt)"
