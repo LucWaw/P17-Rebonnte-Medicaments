@@ -1,5 +1,6 @@
 package com.openclassrooms.rebonnte
 
+import android.graphics.Bitmap
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -16,24 +17,25 @@ import androidx.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withHint
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.io.File
+import java.io.FileOutputStream
 
 @RunWith(AndroidJUnit4::class)
 class AddMedicineTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<MainActivity>()
+    @get:Rule
+    val screenshotWatcher = ScreenshotWatcher()
+
 
     @Test
     fun testAddMedicine() {
-
-        // TAKE A SCREEN SHOT to understand the problem
-        // ce serait mieux de pas faire en memeoire pour bien tester l'intégration de firebase
-        // en deux étapes :
-        // 1 en memoire
-        // 2 avec firebase débugging screen shot ou autre
-
+        Thread.sleep(5000)
+        ScreenshotWatcher().takeScreenshot("Starting TEST")
 
         onView(withHint("Email")).perform(click())
 
@@ -159,4 +161,17 @@ class AddMedicineTest {
     }
 
 
+}
+
+
+fun takeScreenshotOnFailure(name: String) {
+    val path = File(
+        InstrumentationRegistry.getInstrumentation().targetContext.getExternalFilesDir(null),
+        "$name.png"
+    )
+    val bitmap = (InstrumentationRegistry.getInstrumentation().uiAutomation
+        .takeScreenshot())
+    val output = FileOutputStream(path)
+    bitmap.compress(Bitmap.CompressFormat.PNG, 100, output)
+    output.close()
 }

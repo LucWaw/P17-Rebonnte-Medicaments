@@ -56,6 +56,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.domain.History
+import com.openclassrooms.rebonnte.formatDateFromMillis
 import com.openclassrooms.rebonnte.ui.component.ItemPlaceholder
 import com.openclassrooms.rebonnte.ui.component.SimpleDialogContent
 import java.time.Instant
@@ -391,10 +392,7 @@ fun DeleteMedicineDialogCustom(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HistoryItem(history: History) {
-    val formatter = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.FRENCH)
-    val instant = Instant.ofEpochMilli(history.date)
-    val date = instant.atZone(ZoneId.systemDefault()).toLocalDate()
-
+    val formattedDate = formatDateFromMillis(history.date)
 
     Card(
         modifier = Modifier
@@ -405,7 +403,7 @@ fun HistoryItem(history: History) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = history.medicineName, fontWeight = FontWeight.Bold)
             Text(text = "User: ${history.userId}")
-            Text(text = "Date: ${date.format(formatter)}")
+            Text(text = "Date: $formattedDate")
             Text(text = "Details: ${history.details}")
         }
     }
