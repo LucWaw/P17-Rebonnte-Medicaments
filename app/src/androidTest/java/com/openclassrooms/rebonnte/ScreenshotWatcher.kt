@@ -1,33 +1,46 @@
 package com.openclassrooms.rebonnte
 
+
 import android.graphics.Bitmap
-import android.os.Environment
+import android.util.Log
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 import java.io.File
 import java.io.FileOutputStream
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class ScreenshotWatcher : TestWatcher() {
 
     fun takeScreenshot(name: String) {
-        val picturesDir = File(
-            Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES
-            ), "TestScreenshots"
-        )
+        val screenshotsDir = File("/sdcard/Download/TestScreenshots")
 
-        if (!picturesDir.exists()) {
-            picturesDir.mkdirs() // Crée le dossier s’il n’existe pas
+        if (!screenshotsDir.exists() && !screenshotsDir.mkdirs()) {
+            Log.e(
+                "ScreenshotWatcher",
+                "Impossible de créer le dossier: ${screenshotsDir.absolutePath}"
+            )
+            return
         }
 
-        val screenshotFile = File(picturesDir, "$name.png")
+        val timeStamp = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(Date())
+        val screenshotFile = File(screenshotsDir, "$name-$timeStamp.png")
 
-        val bitmap: Bitmap = InstrumentationRegistry.getInstrumentation()
-            .uiAutomation.takeScreenshot()
+        try {
+            val bitmap: Bitmap = InstrumentationRegistry.getInstrumentation()
+                .uiAutomation.takeScreenshot()
 
-        FileOutputStream(screenshotFile).use { out ->
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+            FileOutputStream(screenshotFile).use { out ->
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+                Log.i(
+                    "ScreenshotWatcher",
+                    "Screenshot sauvegardé dans: ${screenshotFile.absolutePath}"
+                )
+            }
+        } catch (e: Exception) {
+            Log.e("ScreenshotWatcher", "Erreur lors de la capture d'écran", e)
         }
     }
 
@@ -43,4 +56,3 @@ class ScreenshotWatcher : TestWatcher() {
         takeScreenshot("SUCCESS-${description.methodName}")
     }
 }
-
