@@ -69,13 +69,14 @@ jobs:
           api-level: 29
           ndk: 21.0.6113669
           cmake: 3.10.2.4988404
-          script: ./gradlew connectedCheck
-
-      - name: Pull screenshots from emulator
-        if: always()
-        run: |
-          mkdir -p screenshots
-          adb pull /sdcard/Download/TestScreenshots ./screenshots || echo "No screenshots found"
+          script: |
+            set +e
+            ./gradlew connectedCheck
+            TEST_RESULT=$?
+            set -e
+            mkdir -p screenshots
+            adb pull /sdcard/Download/TestScreenshots ./screenshots || echo "No screenshots found"
+            exit $TEST_RESULT
 
       - name: Upload Test Screenshots
         if: always()
