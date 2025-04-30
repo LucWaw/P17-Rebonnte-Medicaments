@@ -63,20 +63,24 @@ jobs:
           DATA: ${{ secrets.GOOGLE_SERVICES_JSON }}
         run: echo $DATA > ./app/google-services.json
 
-      - name: Change script permissions
-        run: chmod +x ./test-ci.sh
-
       - name: run tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 29
           ndk: 21.0.6113669
           cmake: 3.10.2.4988404
-          script: ./test-ci.sh
+          script: ./gradlew connectedCheck
 
-      - name: Upload Recording
-        uses: actions/upload-artifact@v4
+      - name: Pull screenshots from emulator
         if: always()
+        run: |
+          adb shell ls /storage/emulated/0/Pictures/TestScreenshots || echo "No screenshots found"
+          adb pull /storage/emulated/0/Pictures/TestScreenshots ./screenshots || echo "Nothing to pull"
+
+      - name: Upload test screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          name: Test Recording
-          path: testRecording.mp4
+          name: Test Screenshots
+          path: screenshots/
+
