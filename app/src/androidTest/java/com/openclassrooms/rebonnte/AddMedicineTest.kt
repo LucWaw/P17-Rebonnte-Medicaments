@@ -1,5 +1,6 @@
 package com.openclassrooms.rebonnte
 
+import android.util.Log
 import android.view.View
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDisplayed
@@ -10,6 +11,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextInput
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.replaceText
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -18,6 +20,9 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withHint
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
+import androidx.test.runner.lifecycle.Stage
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -52,13 +57,31 @@ class AddMedicineTest {
 
     @Test
     fun testAddMedicine() {
+        val authActivityIdle =
+            ActivityResumedIdlingResource("com.firebase.ui.auth.ui.email.EmailActivity") // ou "AuthMethodPickerActivity"
+        IdlingRegistry.getInstance().register(authActivityIdle)
 
 
         ScreenshotWatcher().takeScreenshot("Starting TEST")
 
-        waitUntilViewIsDisplayed(withHint("Email"))
+
 
         onView(withHint("Email")).perform(replaceText("fakehhkgugugugufugubkdt@mail.com"))
+
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            val activity = ActivityLifecycleMonitorRegistry
+                .getInstance()
+                .getActivitiesInStage(Stage.RESUMED)
+                .firstOrNull()
+
+            println("🔥 Current activity name: ${activity?.javaClass?.name}")
+            Log.d(
+                "Current activity name",
+                "Current activity name: ${activity?.javaClass?.name}"
+            )
+        }
+
 
         onView(withText("SIGN IN")).perform(click())
 
@@ -67,6 +90,7 @@ class AddMedicineTest {
         onView(withText("SIGN IN")).check(matches(isCompletelyDisplayed())).perform(click())
 
 
+        IdlingRegistry.getInstance().unregister(authActivityIdle)
 
         composeTestRule
             .onNodeWithText("Medicine")
