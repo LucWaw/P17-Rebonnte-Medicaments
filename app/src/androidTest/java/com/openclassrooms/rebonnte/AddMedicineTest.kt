@@ -1,5 +1,6 @@
 package com.openclassrooms.rebonnte
 
+import android.view.View
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -13,6 +14,7 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.replaceText
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withHint
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -29,25 +31,32 @@ class AddMedicineTest {
     val screenshotWatcher = ScreenshotWatcher()
 
 
+    fun waitUntilViewIsDisplayed(matcher: org.hamcrest.Matcher<View>, timeout: Long = 5000L) {
+        val startTime = System.currentTimeMillis()
+        val endTime = startTime + timeout
+        var lastError: Throwable? = null
+
+        do {
+            try {
+                onView(matcher).check(matches(isDisplayed()))
+                return
+            } catch (e: Throwable) {
+                lastError = e
+                Thread.sleep(100)
+            }
+        } while (System.currentTimeMillis() < endTime)
+
+        throw lastError
+    }
+
+
     @Test
     fun testAddMedicine() {
 
 
-
         ScreenshotWatcher().takeScreenshot("Starting TEST")
 
-        var boolean = true
-        while (boolean){
-            try {
-                onView(withHint("Email")).perform(click())
-                boolean = false
-
-            } catch (_: Exception) {
-                println("testAddEvent : Email not found")
-            }
-
-        }
-
+        waitUntilViewIsDisplayed(withHint("Email"))
 
         onView(withHint("Email")).perform(replaceText("fakehhkgugugugufugubkdt@mail.com"))
 
