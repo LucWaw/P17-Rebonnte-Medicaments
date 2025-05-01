@@ -69,18 +69,19 @@ jobs:
           api-level: 29
           ndk: 21.0.6113669
           cmake: 3.10.2.4988404
-          script: ./gradlew connectedCheck
+          script: |
+            set +e
+            ./gradlew connectedCheck
+            TEST_RESULT=$?
+            set -e
+            mkdir -p screenshots
+            adb pull /sdcard/Download/TestScreenshots ./screenshots || echo "No screenshots found"
+            exit $TEST_RESULT
 
-      - name: Pull screenshots from emulator
-        if: always()
-        run: |
-          adb shell ls /storage/emulated/0/Pictures/TestScreenshots || echo "No screenshots found"
-          adb pull /storage/emulated/0/Pictures/TestScreenshots ./screenshots || echo "Nothing to pull"
-
-      - name: Upload test screenshots
+      - name: Upload Test Screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Test Screenshots
-          path: screenshots/
+          name: TestScreenshots
+          path: ./screenshots
 
