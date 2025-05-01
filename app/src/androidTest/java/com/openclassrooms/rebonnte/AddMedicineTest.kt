@@ -1,6 +1,5 @@
 package com.openclassrooms.rebonnte
 
-import android.graphics.Bitmap
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -17,27 +16,38 @@ import androidx.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withHint
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.io.File
-import java.io.FileOutputStream
 
 @RunWith(AndroidJUnit4::class)
 class AddMedicineTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<MainActivity>()
+
     @get:Rule
     val screenshotWatcher = ScreenshotWatcher()
 
 
     @Test
     fun testAddMedicine() {
-        Thread.sleep(5000)
+
+
+
         ScreenshotWatcher().takeScreenshot("Starting TEST")
 
-        onView(withHint("Email")).perform(click())
+        var boolean = true
+        while (boolean){
+            try {
+                onView(withHint("Email")).perform(click())
+                boolean = false
+
+            } catch (_: Exception) {
+                println("testAddEvent : Email not found")
+            }
+
+        }
+
 
         onView(withHint("Email")).perform(replaceText("fakehhkgugugugufugubkdt@mail.com"))
 
@@ -161,17 +171,4 @@ class AddMedicineTest {
     }
 
 
-}
-
-
-fun takeScreenshotOnFailure(name: String) {
-    val path = File(
-        InstrumentationRegistry.getInstrumentation().targetContext.getExternalFilesDir(null),
-        "$name.png"
-    )
-    val bitmap = (InstrumentationRegistry.getInstrumentation().uiAutomation
-        .takeScreenshot())
-    val output = FileOutputStream(path)
-    bitmap.compress(Bitmap.CompressFormat.PNG, 100, output)
-    output.close()
 }
