@@ -1,5 +1,7 @@
 package com.openclassrooms.rebonnte
 
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -31,9 +33,17 @@ class AddMedicineTest {
     fun testAddMedicine() {
 
         composeTestRule.waitUntil(timeoutMillis = 50000) {
-            composeTestRule
-                .onNodeWithText("Medicine")
-                .isDisplayed()
+            try {
+                composeTestRule
+                    .onNodeWithText("Medicine")
+                    .assertIsDisplayed()            // First, check if it's visible
+                    .assertIsEnabled()              // THEN, check if it's enabled
+                true // If both assertions pass, the condition is met
+            } catch (_: AssertionError) {
+                // If either assertion fails, catch the error and return false
+                // This tells waitUntil to keep trying
+                false
+            }
         }
 
         composeTestRule

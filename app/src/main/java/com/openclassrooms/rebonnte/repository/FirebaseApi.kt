@@ -1,7 +1,6 @@
 package com.openclassrooms.rebonnte.repository
 
 import com.google.android.gms.tasks.Task
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
@@ -118,12 +117,12 @@ class FirebaseApi {
                 Direction.DESCENDING
             )
             .get()
-            .await().documents.map { element : DocumentSnapshot ->
+            .await().documents.map { element: DocumentSnapshot ->
                 History(
                     id = element.id,
                     medicineName = element.getString("medicineName") ?: "",
-                    userEmail = FirebaseAuth.getInstance().currentUser?.email ?: "",
-                    userName = FirebaseAuth.getInstance().currentUser?.displayName ?: "",
+                    userEmail = element.getString("userEmail") ?: "",
+                    userName = element.getString("userName") ?: "",
                     date = element.getLong("date") ?: 0L,
                     details = element.getString("details") ?: ""
                 )
@@ -228,7 +227,11 @@ class FirebaseApi {
      * @param targetAisleName L'ID de l'allée cible.
      * @return Une tâche indiquant le résultat de l'opération.
      */
-    fun deleteByMovingAllMedicine(aisleId: String, targetAisleName: String, nameAisle: String): Task<Task<Void?>?> {
+    fun deleteByMovingAllMedicine(
+        aisleId: String,
+        targetAisleName: String,
+        nameAisle: String
+    ): Task<Task<Void?>?> {
         // Récupère la référence de l'allée à supprimer
         val aisleRef = getAisleCollection().document(aisleId)
 
