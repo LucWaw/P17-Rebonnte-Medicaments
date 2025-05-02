@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
@@ -21,6 +22,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,6 +34,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,6 +60,17 @@ fun MedicineScreen(
     addMedicine: () -> Unit
 ) {
     val medicines by viewModel.getMedicines().collectAsStateWithLifecycle(emptyList())
+    val listState = rememberLazyListState()
+
+    LaunchedEffect(medicines) {
+        if (medicines.isNotEmpty()) {
+            viewModel.updateLoadingState(false)
+
+            listState.animateScrollToItem(index = 0)
+        }
+    }
+
+    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar =
@@ -116,7 +130,10 @@ fun MedicineScreen(
                         query = searchQuery,
                         onQueryChange = {
                             searchQuery = it
-                            viewModel.updateFilterAndSort(OrderFilter.FILTER_BY_NAME, searchQuery)
+                            viewModel.updateFilterAndSort(
+                                OrderFilter.FILTER_BY_NAME,
+                                searchQuery
+                            )
                         },
                         isSearchActive = isSearchActive,
                         onActiveChanged = { isSearchActive = it }
@@ -125,28 +142,43 @@ fun MedicineScreen(
                 }
             },
         floatingActionButton = {
-            FloatingActionButton(modifier = Modifier.testTag("addMedicineFabButton"), onClick = {
-                addMedicine()
-            }) {
+            FloatingActionButton(
+                modifier = Modifier.testTag("addMedicineFabButton"),
+                onClick = {
+                    addMedicine()
+                }) {
                 Icon(Icons.Default.Add, contentDescription = "Add")
             }
         }
 
     ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .testTag("LazyMedicine")
-                .padding(paddingValues)
-                .fillMaxSize()
-        ) {
-            items(medicines, key = { medicine -> medicine.id }) { medicine ->
-                MedicineItem(medicine) {
-                    goToDetail(medicine.id)
+
+        if (isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .testTag("InProgressMedicine"),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        } else {
+            LazyColumn(
+                state = listState,
+                modifier = Modifier
+                    .testTag("LazyMedicine")
+                    .padding(paddingValues)
+                    .fillMaxSize()
+            ) {
+                items(medicines, key = { medicine -> medicine.id }) { medicine ->
+                    MedicineItem(medicine) {
+                        goToDetail(medicine.id)
+                        viewModel.updateLoadingState(true)
+                    }
                 }
             }
         }
     }
-
 
 }
 

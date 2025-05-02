@@ -6,7 +6,8 @@ import androidx.compose.runtime.Immutable
 data class History(
     val id: String = "",
     val medicineName: String = "",
-    val userId: String = "",
+    val userEmail: String = "",
+    val userName: String = "",
     val date: Long = 0,
     val details: String = ""
 )
