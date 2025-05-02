@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.ErrorCodes
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
@@ -28,8 +29,10 @@ import com.openclassrooms.rebonnte.R
 
 @Composable
 fun SignInScreen(
-    modifier: Modifier = Modifier, navigateToMedicineScreen: () -> Unit
-) {
+    modifier: Modifier = Modifier,
+    navigateToMedicineScreen: () -> Unit,
+    hiltViewModel: SignInViewModel = hiltViewModel(),
+    ) {
     var retry by remember { mutableStateOf(false) }
     if (retry == false) {
         Box(
@@ -62,7 +65,15 @@ fun SignInScreen(
     LaunchedEffect(Unit) {
 
         if (!isConnected) {
-            signIn(launcher)
+            if (hiltViewModel.isDirectSignInEnabled) {
+                FirebaseAuth.getInstance().signInWithEmailAndPassword("fakehhkgugugugufugubkdt@mail.com", "Gjgjgjvkfyfuvk").addOnSuccessListener {
+                    isConnected = true
+                }.addOnFailureListener {
+                    retry = true
+                }
+            } else {
+                signIn(launcher)
+            }
         }
     }
 
