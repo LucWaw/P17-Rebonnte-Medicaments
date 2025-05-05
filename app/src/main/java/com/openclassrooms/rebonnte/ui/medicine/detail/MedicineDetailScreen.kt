@@ -7,6 +7,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -26,6 +27,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -60,6 +62,7 @@ import androidx.paging.compose.itemKey
 import com.google.firebase.auth.FirebaseAuth
 import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.domain.History
+import com.openclassrooms.rebonnte.domain.Result
 import com.openclassrooms.rebonnte.formatDateFromMillis
 import com.openclassrooms.rebonnte.ui.component.ItemPlaceholder
 import com.openclassrooms.rebonnte.ui.component.SimpleDialogContent
@@ -73,241 +76,268 @@ fun MedicineDetailScreen(
     onBackClick: () -> Unit,
     viewModel: MedicineDetailViewModel = hiltViewModel()
 ) {
-    val medicines by viewModel.medicines.collectAsStateWithLifecycle(emptyList())
-    val aisles by viewModel.aisles.collectAsStateWithLifecycle(initialValue = emptyList())
-    val medicine = medicines.find { it.id == id } ?: return
-    var nameLocal by remember { mutableStateOf(medicine.name) }
+    val medicines by viewModel.medicines.collectAsStateWithLifecycle(Result.Loading)
+    val aisles by viewModel.aisles.collectAsStateWithLifecycle(Result.Loading)
 
-    val historyItems = viewModel.history.collectAsLazyPagingItems()
+    if (medicines is Result.Error) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text("Error loading medicines")
+        }
+    } else if (medicines is Result.Loading) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
+        }
+    } else {
+        val medicinesList = (medicines as Result.Success).data
+        val medicine = medicinesList.find { it.id == id } ?: return
+        var nameLocal by remember { mutableStateOf(medicine.name) }
 
-    LaunchedEffect(key1 = id) {
-        viewModel.loadHistory(id)
-    }
-    val lazyCollumnState = rememberLazyListState()
+        val historyItems = viewModel.history.collectAsLazyPagingItems()
 
-    LaunchedEffect(historyItems.itemSnapshotList.items.firstOrNull()) {
-        // Déclenché lorsque l’historique est rechargé avec un nouvel item
-        lazyCollumnState.animateScrollToItem(0)
-    }
+        LaunchedEffect(key1 = id) {
+            viewModel.loadHistory(id)
+        }
+        val lazyCollumnState = rememberLazyListState()
 
-    var stockLocal by remember { mutableIntStateOf(medicine.stock) }
-    var context = LocalContext.current
+        LaunchedEffect(historyItems.itemSnapshotList.items.firstOrNull()) {
+            // Déclenché lorsque l’historique est rechargé avec un nouvel item
+            lazyCollumnState.animateScrollToItem(0)
+        }
 
-    var showDeleteDialog by remember { mutableStateOf(false) }
+        var stockLocal by remember { mutableIntStateOf(medicine.stock) }
+        var context = LocalContext.current
 
-    if (showDeleteDialog) {
-        DeleteMedicineDialogCustom(
-            onDismissRequest = { showDeleteDialog = false },
-            onConfirmDelete = {
-                showDeleteDialog = false
-                viewModel.deleteMedicine(id)
-                    .addOnSuccessListener { innerTask ->
-                        innerTask?.addOnSuccessListener {
+        var showDeleteDialog by remember { mutableStateOf(false) }
 
-                            onBackClick()
-                            Toast.makeText(
-                                context,
-                                context.getString(R.string.deleted_with_success),
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }?.addOnFailureListener {
-                            Toast.makeText(
-                                context,
-                                context.getString(R.string.delete_error_database),
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    }
-                    .addOnFailureListener {
-                        Toast.makeText(
-                            context,
-                            context.getString(R.string.delete_error_history),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-            }
-        )
-    }
+        if (showDeleteDialog) {
+            DeleteMedicineDialogCustom(
+                onDismissRequest = { showDeleteDialog = false },
+                onConfirmDelete = {
+                    showDeleteDialog = false
+                    viewModel.deleteMedicine(id)
+                        .addOnSuccessListener { innerTask ->
+                            innerTask?.addOnSuccessListener {
 
-    val scrollState = rememberScrollState()
-
-    Scaffold(
-        modifier = Modifier.scrollable(scrollState, Orientation.Vertical),
-        topBar =
-            {
-                TopAppBar(
-                    title = { Text(medicine.name) },
-                    navigationIcon = {
-                        IconButton(onClick = {
-                            onBackClick()
-                        }) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                                contentDescription = stringResource(R.string.go_back)
-                            )
-                        }
-                    },
-                    actions =
-                        {
-                            IconButton(modifier = Modifier.testTag("deleteMedicine"), onClick = {
-                                showDeleteDialog = true
-                            }) {
-                                Icon(
-                                    imageVector = Icons.Filled.Delete,
-                                    contentDescription = stringResource(R.string.delete_medicine)
-                                )
-                            }
-                        }
-                )
-            }
-    ) { paddingValues ->
-        LazyColumn(state = lazyCollumnState, modifier = Modifier.fillMaxSize()) {
-            item {
-                Column(
-                    modifier = Modifier
-                        .padding(paddingValues)
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    TextField(
-                        value = nameLocal,
-                        onValueChange = { nameLocal = it },
-                        label = { Text("Name") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    val options = aisles.map { it.name }
-                    var expanded by remember { mutableStateOf(false) }
-                    var selectedOptionText by remember { mutableStateOf(medicine.nameAisle) }
-                    ExposedDropdownMenuBox(
-                        modifier = Modifier.fillMaxWidth(),
-                        expanded = expanded,
-                        onExpandedChange = { expanded = !expanded },
-                    ) {
-                        TextField(
-                            modifier = Modifier
-                                .menuAnchor()
-                                .fillMaxWidth(),
-                            readOnly = true,
-                            value = selectedOptionText, //CONTIENT MAIN AISLE
-                            onValueChange = {},
-                            label = { Text("Aisle") },
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                            colors = ExposedDropdownMenuDefaults.textFieldColors(),
-                        )
-                        ExposedDropdownMenu(
-                            modifier = Modifier.fillMaxWidth(),
-                            expanded = expanded,
-                            onDismissRequest = { expanded = false },
-                        ) {
-                            options.forEach { selectionOption ->
-                                DropdownMenuItem(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    text = { Text(selectionOption) },
-                                    onClick = {
-                                        selectedOptionText = selectionOption
-                                        expanded = false
-                                    },
-                                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
-                                )
-                            }
-                        }
-                    }
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        IconButton(onClick = {
-                            if (stockLocal > 0) stockLocal--
-                        }) {
-                            Icon(
-                                imageVector = Icons.Filled.KeyboardArrowDown,
-                                contentDescription = "Minus One"
-                            )
-                        }
-                        TextField(
-                            value = stockLocal.toString(),
-                            onValueChange = {},
-                            label = { Text("Stock") },
-                            enabled = false,
-                            modifier = Modifier.weight(1f)
-                        )
-                        IconButton(onClick = {
-                            stockLocal++
-                        }) {
-                            Icon(
-                                imageVector = Icons.Default.KeyboardArrowUp,
-                                contentDescription = "Plus One"
-                            )
-                        }
-                    }
-
-                    Button(
-                        modifier = Modifier
-                            .width(250.dp)
-                            .height(50.dp)
-                            .align(Alignment.End),
-                        onClick = {
-                            val modifiedDetails = whatIsModified(
-                                nameLocal,
-                                selectedOptionText,
-                                stockLocal,
-                                medicine.name,
-                                medicine.nameAisle,
-                                medicine.stock,
-                                context
-                            )
-
-
-                            if (modifiedDetails == "Nothing was modified") {
+                                onBackClick()
                                 Toast.makeText(
                                     context,
-                                    context.getString(R.string.you_haven_t_modified_anything),
+                                    context.getString(R.string.deleted_with_success),
                                     Toast.LENGTH_SHORT
                                 ).show()
-                                return@Button
+                            }?.addOnFailureListener {
+                                Toast.makeText(
+                                    context,
+                                    context.getString(R.string.delete_error_database),
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
-
-                            viewModel.modifyMedicine(
-                                medicine.id,
-                                nameLocal,
-                                selectedOptionText,
-                                medicine.stock + (stockLocal - medicine.stock)
-                            )
-                            viewModel.addToHistory(
-                                medicine.id,
-                                History(
-                                    medicineName = medicine.name,
-                                    userEmail = FirebaseAuth.getInstance().currentUser?.email ?: "",
-                                    userName = FirebaseAuth.getInstance().currentUser?.displayName
-                                        ?: "",
-                                    date = System.currentTimeMillis(),
-                                    details = modifiedDetails
-                                )
-                            )
-                            viewModel.loadHistory(id)
-
-
                         }
-                    ) { Text(stringResource(R.string.valid_modifications)) }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(text = "History", style = MaterialTheme.typography.titleLarge)
+                        .addOnFailureListener {
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.delete_error_history),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                 }
-            }
-            items(
-                historyItems.itemCount,
-                key = historyItems.itemKey { it.id }
-            ) { index ->
-                val history = historyItems[index]
-                if (history != null) {
-                    HistoryItem(history)
-                } else {
-                    ItemPlaceholder()
-                }
-            }
+            )
+        }
 
+        val scrollState = rememberScrollState()
+
+        Scaffold(
+            modifier = Modifier.scrollable(scrollState, Orientation.Vertical),
+            topBar =
+                {
+                    TopAppBar(
+                        title = { Text(medicine.name) },
+                        navigationIcon = {
+                            IconButton(onClick = {
+                                onBackClick()
+                            }) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                                    contentDescription = stringResource(R.string.go_back)
+                                )
+                            }
+                        },
+                        actions =
+                            {
+                                IconButton(
+                                    modifier = Modifier.testTag("deleteMedicine"),
+                                    onClick = {
+                                        showDeleteDialog = true
+                                    }) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Delete,
+                                        contentDescription = stringResource(R.string.delete_medicine)
+                                    )
+                                }
+                            }
+                    )
+                }
+        ) { paddingValues ->
+            LazyColumn(state = lazyCollumnState, modifier = Modifier.fillMaxSize()) {
+                item {
+                    Column(
+                        modifier = Modifier
+                            .padding(paddingValues)
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        TextField(
+                            value = nameLocal,
+                            onValueChange = { nameLocal = it },
+                            label = { Text("Name") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        val options = (aisles as? Result.Success)?.data?.map { it.name } ?: emptyList()
+                        var expanded by remember { mutableStateOf(false) }
+                        var selectedOptionText by remember { mutableStateOf(medicine.nameAisle) }
+                        ExposedDropdownMenuBox(
+                            modifier = Modifier.fillMaxWidth(),
+                            expanded = expanded,
+                            onExpandedChange = { expanded = !expanded },
+                        ) {
+                            TextField(
+                                modifier = Modifier
+                                    .menuAnchor()
+                                    .fillMaxWidth(),
+                                readOnly = true,
+                                value = selectedOptionText, //CONTIENT MAIN AISLE
+                                onValueChange = {},
+                                label = { Text("Aisle") },
+                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                                colors = ExposedDropdownMenuDefaults.textFieldColors(),
+                            )
+                            ExposedDropdownMenu(
+                                modifier = Modifier.fillMaxWidth(),
+                                expanded = expanded,
+                                onDismissRequest = { expanded = false },
+                            ) {
+                                options.forEach { selectionOption ->
+                                    DropdownMenuItem(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        text = { Text(selectionOption) },
+                                        onClick = {
+                                            selectedOptionText = selectionOption
+                                            expanded = false
+                                        },
+                                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                                    )
+                                }
+                            }
+                        }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            IconButton(onClick = {
+                                if (stockLocal > 0) stockLocal--
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Filled.KeyboardArrowDown,
+                                    contentDescription = "Minus One"
+                                )
+                            }
+                            TextField(
+                                value = stockLocal.toString(),
+                                onValueChange = {},
+                                label = { Text("Stock") },
+                                enabled = false,
+                                modifier = Modifier.weight(1f)
+                            )
+                            IconButton(onClick = {
+                                stockLocal++
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Default.KeyboardArrowUp,
+                                    contentDescription = "Plus One"
+                                )
+                            }
+                        }
+
+                        Button(
+                            modifier = Modifier
+                                .width(250.dp)
+                                .height(50.dp)
+                                .align(Alignment.End),
+                            onClick = {
+                                val modifiedDetails = whatIsModified(
+                                    nameLocal,
+                                    selectedOptionText,
+                                    stockLocal,
+                                    medicine.name,
+                                    medicine.nameAisle,
+                                    medicine.stock,
+                                    context
+                                )
+
+
+                                if (modifiedDetails == "Nothing was modified") {
+                                    Toast.makeText(
+                                        context,
+                                        context.getString(R.string.you_haven_t_modified_anything),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    return@Button
+                                }
+
+                                viewModel.modifyMedicine(
+                                    medicine.id,
+                                    nameLocal,
+                                    selectedOptionText,
+                                    medicine.stock + (stockLocal - medicine.stock)
+                                )
+                                viewModel.addToHistory(
+                                    medicine.id,
+                                    History(
+                                        medicineName = medicine.name,
+                                        userEmail = FirebaseAuth.getInstance().currentUser?.email
+                                            ?: "",
+                                        userName = FirebaseAuth.getInstance().currentUser?.displayName
+                                            ?: "",
+                                        date = System.currentTimeMillis(),
+                                        details = modifiedDetails
+                                    )
+                                )
+                                viewModel.loadHistory(id)
+
+
+                            }
+                        ) { Text(stringResource(R.string.valid_modifications)) }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(text = "History", style = MaterialTheme.typography.titleLarge)
+                    }
+                }
+                items(
+                    historyItems.itemCount,
+                    key = historyItems.itemKey { it.id }
+                ) { index ->
+                    val history = historyItems[index]
+                    if (history != null) {
+                        HistoryItem(history)
+                    } else {
+                        ItemPlaceholder()
+                    }
+                }
+
+            }
         }
     }
+
+
 }
 
 /**
@@ -404,7 +434,7 @@ fun HistoryItem(history: History) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
+            .padding(vertical = 4.dp, horizontal = 8.dp),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {

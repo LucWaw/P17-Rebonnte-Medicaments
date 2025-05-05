@@ -3,9 +3,7 @@ package com.openclassrooms.rebonnte.repository
 import com.google.android.gms.tasks.Task
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query.Direction
 import com.google.firebase.firestore.snapshots
 import com.openclassrooms.rebonnte.domain.Aisle
 import com.openclassrooms.rebonnte.domain.History
@@ -15,7 +13,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 
 class FirebaseApi {
 
@@ -89,14 +86,7 @@ class FirebaseApi {
                 this.launch {
                     val medicineList = documents.map { document ->
                         // Conversion du document Firestore en objet Medicine, avec récupération de l'ID
-                        val medicine =
-                            document.toObject(Medicine::class.java)!!.copy(id = document.id)
-
-                        // Récupération de la sous-collection "History" pour ce médicament
-                        val histories = getHistoriesForMedicine(document.id)
-
-                        // Création de l'objet complet avec historique
-                        medicine.copy(histories = histories)
+                        document.toObject(Medicine::class.java)!!.copy(id = document.id)
                     }
 
                     // Envoi de la liste dans le flux
@@ -107,28 +97,6 @@ class FirebaseApi {
             // Nettoyage : suppression du listener quand le Flow est annulé
             awaitClose { listener.remove() }
         }
-
-
-    suspend fun getHistoriesForMedicine(medicineId: String): List<History> {
-        val history = getMedecineCollection()
-            .document(medicineId)
-            .collection("history").orderBy(
-                "date",
-                Direction.DESCENDING
-            )
-            .get()
-            .await().documents.map { element: DocumentSnapshot ->
-                History(
-                    id = element.id,
-                    medicineName = element.getString("medicineName") ?: "",
-                    userEmail = element.getString("userEmail") ?: "",
-                    userName = element.getString("userName") ?: "",
-                    date = element.getLong("date") ?: 0L,
-                    details = element.getString("details") ?: ""
-                )
-            }
-        return history
-    }
 
     fun addAisle(nameAisle: String) {
         val aisle = Aisle(name = nameAisle, id = "")

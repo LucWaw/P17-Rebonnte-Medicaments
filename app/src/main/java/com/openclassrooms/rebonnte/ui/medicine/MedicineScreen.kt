@@ -50,7 +50,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.openclassrooms.rebonnte.domain.Medicine
+import com.openclassrooms.rebonnte.domain.Result
 import com.openclassrooms.rebonnte.repository.OrderFilter
+import com.openclassrooms.rebonnte.ui.component.ErrorState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,18 +61,15 @@ fun MedicineScreen(
     goToDetail: (String) -> Unit,
     addMedicine: () -> Unit
 ) {
-    val medicines by viewModel.getMedicines().collectAsStateWithLifecycle(emptyList())
+    val medicines by viewModel.getMedicines().collectAsStateWithLifecycle(Result.Loading)
     val listState = rememberLazyListState()
 
-    LaunchedEffect(medicines) {
-        if (medicines.isNotEmpty()) {
-            viewModel.updateLoadingState(false)
 
-            listState.animateScrollToItem(index = 0)
-        }
-    }
 
-    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
+
+
+
+
 
     Scaffold(
         topBar =
@@ -153,16 +152,25 @@ fun MedicineScreen(
 
     ) { paddingValues ->
 
-        if (isLoading) {
+        if (medicines is Result.Error) {
+            ErrorState(retryButton = false)
+        } else if (medicines is Result.Loading) {
             Box(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .testTag("InProgressMedicine"),
+                    .fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator()
             }
-        } else {
+        } else if (medicines is Result.Success) {
+            val medicinesList = (medicines as Result.Success).data
+
+            LaunchedEffect(medicinesList) {
+                if (!medicinesList.isEmpty()) {
+                    listState.animateScrollToItem(index = 0)
+                }
+            }
+
             LazyColumn(
                 state = listState,
                 modifier = Modifier
@@ -170,10 +178,9 @@ fun MedicineScreen(
                     .padding(paddingValues)
                     .fillMaxSize()
             ) {
-                items(medicines, key = { medicine -> medicine.id }) { medicine ->
+                items(medicinesList, key = { medicine -> medicine.id }) { medicine ->
                     MedicineItem(medicine) {
                         goToDetail(medicine.id)
-                        viewModel.updateLoadingState(true)
                     }
                 }
             }

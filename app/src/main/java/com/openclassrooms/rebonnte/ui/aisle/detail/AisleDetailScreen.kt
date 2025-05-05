@@ -3,6 +3,7 @@ package com.openclassrooms.rebonnte.ui.aisle.detail
 import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -18,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -51,7 +53,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.gms.tasks.Task
 import com.openclassrooms.rebonnte.R
+import com.openclassrooms.rebonnte.domain.Aisle
 import com.openclassrooms.rebonnte.domain.Medicine
+import com.openclassrooms.rebonnte.domain.Result
+import com.openclassrooms.rebonnte.ui.component.ErrorState
 import com.openclassrooms.rebonnte.ui.component.SimpleDialogContent
 
 
@@ -63,10 +68,22 @@ fun AisleDetailScreen(
     onBackClick: () -> Unit,
     viewModel: AisleDetailViewModel = hiltViewModel()
 ) {
-    val medicines by viewModel.medicines.collectAsStateWithLifecycle(emptyList())
-    val aisles by viewModel.aisles.collectAsStateWithLifecycle(emptyList())
-    val aisle = aisles.find { it.id == id }
-    val filteredMedicines = medicines.filter { it.nameAisle == aisle?.name }
+    val medicines by viewModel.medicines.collectAsStateWithLifecycle(Result.Loading)
+    val aisles by viewModel.aisles.collectAsStateWithLifecycle(Result.Loading)
+    val aislesList = (aisles as? Result.Success<List<Aisle>>)?.data ?: emptyList()
+    val aisle = aislesList.find { it.id == id }
+    val filteredMedicines =
+        if(
+            medicines is Result.Success
+        ){
+            val medicinesList = (medicines as Result.Success<List<Medicine>>).data
+
+            medicinesList.filter { it.nameAisle == aisle?.name }
+        } else {
+            emptyList()
+        }
+
+
 
     var showDeleteDialog by remember { mutableStateOf(false) }
 
@@ -87,7 +104,7 @@ fun AisleDetailScreen(
             },
             medicines = filteredMedicines,
             onBackClick = onBackClick,
-            aisleOptionsAll = aisles.map { it.name },
+            aisleOptionsAll = aislesList.map { it.name },
             actualAisle = aisle?.name ?: "",
         )
     }
@@ -110,7 +127,7 @@ fun AisleDetailScreen(
                     },
                 actions =
                     {
-                        if (aisle?.name != "Main aisle") {
+                        if (aisle?.name != "Main aisle" && medicines is Result.Success) {
                             IconButton(modifier = Modifier.testTag("deleteAisle"), onClick = {
                                 showDeleteDialog = true
                             }) {
@@ -126,16 +143,29 @@ fun AisleDetailScreen(
         }
 
     ) { paddingValues ->
-        LazyColumn(
-            contentPadding = paddingValues,
-            modifier = Modifier
-                .fillMaxSize()
-                .testTag("AisleDetailLazyMedicine"),
-        ) {
-            items(filteredMedicines, key = { medicine -> medicine.id }) { medicine ->
-                MedicineItem(medicine = medicine, onClick = { id ->
-                    navigateToMedicineDetail(id)
-                })
+
+        if (medicines is Result.Error) {
+            ErrorState(retryButton = false)
+        } else if (medicines is Result.Loading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        } else if (medicines is Result.Success) {
+            LazyColumn(
+                contentPadding = paddingValues,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .testTag("AisleDetailLazyMedicine"),
+            ) {
+                items(filteredMedicines, key = { medicine -> medicine.id }) { medicine ->
+                    MedicineItem(medicine = medicine, onClick = { id ->
+                        navigateToMedicineDetail(id)
+                    })
+                }
             }
         }
     }

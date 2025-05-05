@@ -2,7 +2,6 @@ package com.openclassrooms.rebonnte.ui.medicine.add
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.openclassrooms.rebonnte.domain.Medicine
 import com.openclassrooms.rebonnte.repository.MedicineDto
 import com.openclassrooms.rebonnte.repository.StockRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -35,7 +34,7 @@ class AddMedicineViewModel @Inject constructor(
     /**
      * StateFlow providing the list of available aisles.
      */
-    val aisles = stockRepository.aisles
+    val aisles = stockRepository.aisles()
 
     /**
      * Internal mutable state flow representing the current UI state of the form.
@@ -71,7 +70,7 @@ class AddMedicineViewModel @Inject constructor(
             }
 
             is AddMedicineFormEvent.StockChanged -> {
-                _uiState.update { it.copy(stockInput = formEvent.stock ) }
+                _uiState.update { it.copy(stockInput = formEvent.stock) }
             }
 
             is AddMedicineFormEvent.AisleChanged -> {

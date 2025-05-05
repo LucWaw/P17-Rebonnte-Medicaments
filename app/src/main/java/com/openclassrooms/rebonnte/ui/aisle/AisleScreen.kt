@@ -2,6 +2,7 @@ package com.openclassrooms.rebonnte.ui.aisle
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,6 +13,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -21,12 +23,15 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.openclassrooms.rebonnte.domain.Aisle
+import com.openclassrooms.rebonnte.domain.Result
+import com.openclassrooms.rebonnte.ui.component.ErrorState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,7 +40,7 @@ fun AisleScreen(
     addAisle: () -> Unit,
     goToDetail: (String) -> Unit
 ) {
-    val aisles by viewModel.aisles.collectAsStateWithLifecycle(initialValue = emptyList())
+    val aisles by viewModel.aisles.collectAsStateWithLifecycle(Result.Loading)
 
     Scaffold(
         topBar =
@@ -59,15 +64,30 @@ fun AisleScreen(
 
         }
     ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .testTag("LazyAisle")
-                .padding(paddingValues)
-                .fillMaxSize()
-        ) {
-            items(aisles, key = { aisle -> aisle.id }) { aisle ->
-                AisleItem(aisle) {
-                    goToDetail(aisle.id)
+
+        if (aisles is Result.Error) {
+            ErrorState(retryButton = false)
+        } else if (aisles is Result.Loading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        } else if (aisles is Result.Success) {
+            val aislesList = (aisles as Result.Success).data
+
+            LazyColumn(
+                modifier = Modifier
+                    .testTag("LazyAisle")
+                    .padding(paddingValues)
+                    .fillMaxSize()
+            ) {
+                items(aislesList, key = { aisle -> aisle.id }) { aisle ->
+                    AisleItem(aisle) {
+                        goToDetail(aisle.id)
+                    }
                 }
             }
         }

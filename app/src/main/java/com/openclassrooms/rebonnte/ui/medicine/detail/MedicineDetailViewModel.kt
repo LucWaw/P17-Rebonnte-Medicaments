@@ -24,7 +24,7 @@ class MedicineDetailViewModel @Inject constructor(private val stockRepository: S
     ViewModel() {
 
     val medicines = stockRepository.medicines(OrderFilter.NONE, "")
-    val aisles = stockRepository.aisles
+    val aisles = stockRepository.aisles()
 
     private val _history = MutableStateFlow<PagingData<History>>(PagingData.empty())
     val history = _history.asStateFlow()

@@ -1,10 +1,13 @@
 package com.openclassrooms.rebonnte
 
+import android.content.Context
 import com.openclassrooms.rebonnte.di.AppModule
 import com.openclassrooms.rebonnte.repository.FirebaseApi
+import com.openclassrooms.rebonnte.repository.InternetContext
 import com.openclassrooms.rebonnte.repository.UserRepository
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dagger.hilt.testing.TestInstallIn
 import javax.inject.Singleton
@@ -31,4 +34,10 @@ object TestSignInConfigModule {
     @Provides
     @Singleton
     fun provideDirectSignInEnabled(): Boolean = true
+
+    @Provides
+    @Singleton
+    fun provideConnectivityChecker(@ApplicationContext context: Context): InternetContext {
+        return InternetContext(context)
+    }
 }

@@ -1,4 +1,4 @@
-package com.openclassrooms.rebonnte.ui.account
+package com.openclassrooms.rebonnte.ui.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -28,9 +28,16 @@ import com.openclassrooms.rebonnte.ui.theme.RebonnteTheme
 @Composable
 fun ErrorState(
     modifier: Modifier = Modifier,
-    onTryAgain: () -> Unit
-){
-    Column(modifier.fillMaxSize().padding(80.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically)) {
+    retryButton: Boolean = true,
+    onTryAgain: () -> Unit = {},
+) {
+    Column(
+        modifier
+            .fillMaxSize()
+            .padding(80.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically)
+    ) {
         Box(
             modifier = modifier
                 .clip(
@@ -48,13 +55,18 @@ fun ErrorState(
             )
         }
         //Centered text
-        Text(stringResource(R.string.cannot_access_if_not_logged_in),
-            textAlign = TextAlign.Center)
-        Button(onClick = {
-            onTryAgain()
-        }) {
-            Text(stringResource(R.string.retry_login))
+        Text(
+            stringResource(R.string.cannot_access_if_not_logged_in),
+            textAlign = TextAlign.Center
+        )
+        if (retryButton) {
+            Button(onClick = {
+                onTryAgain()
+            }) {
+                Text(stringResource(R.string.retry_login))
+            }
         }
+
     }
 }
 

@@ -7,6 +7,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AisleViewModel @Inject constructor(stockRepository: StockRepository) : ViewModel() {
-    var aisles = stockRepository.aisles
+    var aisles = stockRepository.aisles()
 }
 

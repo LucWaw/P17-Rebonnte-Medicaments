@@ -26,6 +26,7 @@ import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.google.firebase.auth.FirebaseAuth
 import com.openclassrooms.rebonnte.R
+import com.openclassrooms.rebonnte.ui.component.ErrorState
 
 @Composable
 fun SignInScreen(
@@ -66,7 +67,7 @@ fun SignInScreen(
 
         if (!isConnected) {
             if (hiltViewModel.isDirectSignInEnabled) {
-                FirebaseAuth.getInstance().signInWithEmailAndPassword("fakehhkgugugugufugubkdt@mail.com", "Gjgjgjvkfyfuvk").addOnSuccessListener {
+                FirebaseAuth.getInstance().signInWithEmailAndPassword(System.getenv("EMAIL")?: "Email", System.getenv("PASSWORD")?: "Password").addOnSuccessListener {
                     isConnected = true
                 }.addOnFailureListener {
                     retry = true

@@ -13,7 +13,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AisleDetailViewModel @Inject constructor(private val stockRepository: StockRepository) :
     ViewModel() {
-    val aisles = stockRepository.aisles
+    val aisles = stockRepository.aisles()
     val medicines = stockRepository.medicines(OrderFilter.NONE, "")
 
 

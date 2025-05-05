@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">rebonnte</string>
     <string name="retry_login">Retry Login</string>
-    <string name="cannot_access_if_not_logged_in">You cannot access the application if you are not logged in.</string>
+    <string name="cannot_access_if_not_logged_in">You cannot access the application if you are not logged in or if internet is disabled.</string>
     <string name="network_error">Network error, check your Internet connection</string>
     <string name="unknow_error">An unknown error occurred.</string>
     <string name="SuccessfulConnexion">Successful Connexion</string>
