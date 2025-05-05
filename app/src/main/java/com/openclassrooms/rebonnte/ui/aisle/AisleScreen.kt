@@ -22,6 +22,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -47,7 +48,9 @@ fun AisleScreen(
             },
         floatingActionButton = {
             Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
-                FloatingActionButton(onClick = {
+                FloatingActionButton(
+                    modifier = Modifier.testTag("addAisleFabButton"),
+                    onClick = {
                     addAisle()
                 }) {
                     Icon(Icons.Default.Add, contentDescription = "Add")
@@ -58,6 +61,7 @@ fun AisleScreen(
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
+                .testTag("LazyAisle")
                 .padding(paddingValues)
                 .fillMaxSize()
         ) {

@@ -128,9 +128,11 @@ fun AisleDetailScreen(
     ) { paddingValues ->
         LazyColumn(
             contentPadding = paddingValues,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .testTag("AisleDetailLazyMedicine"),
         ) {
-            items(filteredMedicines, key = { medicine -> medicine.id } ) { medicine ->
+            items(filteredMedicines, key = { medicine -> medicine.id }) { medicine ->
                 MedicineItem(medicine = medicine, onClick = { id ->
                     navigateToMedicineDetail(id)
                 })
@@ -205,6 +207,9 @@ fun DeleteAisleDialogCustom(
                                 Modifier
                                     .fillMaxWidth()
                                     .height(100.dp)
+                                    .testTag(
+                                        if (options.name == deleteALl) "deleteALl" else "movingAll"
+                                    )
                                     .selectable(
                                         selected = (options.name == selectedOption),
                                         onClick = { onOptionSelected(options.name) },
@@ -215,8 +220,13 @@ fun DeleteAisleDialogCustom(
                             ) {
                                 RadioButton(
                                     selected = (options.name == selectedOption),
-                                    onClick = null // null recommended for accessibility with screen readers
+                                    onClick = { onOptionSelected(options.name) },
+                                    modifier = Modifier
+                                        .testTag(
+                                            if (options.name == deleteALl) "deleteAllRadio" else "movingAllRadio"
+                                        )
                                 )
+
                                 if (options.name == movingAll) {
                                     Column(
                                         modifier = Modifier
@@ -227,6 +237,9 @@ fun DeleteAisleDialogCustom(
                                     ) {
                                         Text(
                                             text = options.name,
+                                            modifier = Modifier.testTag(
+                                                if (options.name == deleteALl) "deleteAllText" else "movingAllText"
+                                            ),
                                             style = MaterialTheme.typography.bodyLarge
                                         )
                                         var isAisleDropdownExpanded by remember {
@@ -296,7 +309,13 @@ fun DeleteAisleDialogCustom(
                         }
                     }
                     val context = LocalContext.current
-                    val string = getStringDelete(context, selectedOption, deleteALl, movingAll, selectedAisle)
+                    val string = getStringDelete(
+                        context,
+                        selectedOption,
+                        deleteALl,
+                        movingAll,
+                        selectedAisle
+                    )
 
                     SimpleDialogContent(
                         onDismissRequest = onDismissRequest,
@@ -317,7 +336,13 @@ fun DeleteAisleDialogCustom(
 
 }
 
-fun getStringDelete(context: Context, selectedOption: String, deleteALl: String, movingAll: String, selectedAisle : String): String {
+fun getStringDelete(
+    context: Context,
+    selectedOption: String,
+    deleteALl: String,
+    movingAll: String,
+    selectedAisle: String
+): String {
     return when (selectedOption) {
         deleteALl -> context.getString(R.string.by_deleting_all_medicine)
         movingAll -> context.getString(R.string.by_moving_all_medicine, selectedAisle)

@@ -18,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -49,6 +50,7 @@ fun AddAisleScreen(
             var aisleLocal by remember { mutableStateOf("") }
 
             TextField(
+                modifier = Modifier.testTag("AisleNameTextField"),
                 value = aisleLocal,
                 onValueChange = { aisleLocal = it },
                 label = { Text(text = "Aisle name") },
@@ -58,6 +60,7 @@ fun AddAisleScreen(
             )
 
             Button(
+                modifier = Modifier.testTag("addAisleButton"),
                 onClick = { onValidate(); viewModel.addAisle(aisleLocal) }
             ) { Text(stringResource(R.string.validate_aisle)) }
         }
