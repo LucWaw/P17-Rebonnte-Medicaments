@@ -70,3 +70,6 @@ jobs:
           ndk: 21.0.6113669
           cmake: 3.10.2.4988404
           script: ./gradlew connectedCheck
+        env:
+          EMAIL: ${{ secrets.FAKE_EMAIL }}
+          PASSWORD: ${{ secrets.FAKE_PASSWORD }}
