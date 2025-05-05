@@ -171,6 +171,11 @@ class DeleteAisleByMovingTest {
             .onNodeWithText("Aisle")
             .performClick()
 
+        composeTestRule.waitUntil(timeoutMillis = 50000) {
+            composeTestRule
+                .onNodeWithText("MedicineGeneric2")
+                .isDisplayed()
+        }
 
         composeTestRule
             .onNodeWithText("MedicineGeneric2")
