@@ -9,6 +9,7 @@ plugins {
 }
 
 android {
+
     signingConfigs {
         create("release") {
             storeFile = file("keystore/Rebonnte_app_keystore_file.jks")
@@ -45,6 +46,10 @@ android {
             signingConfig = signingConfigs.getByName("release")
             isDebuggable = false
         }
+        debug {
+            buildConfigField("String", "EMAIL_FAKE", "\"${project.findProperty("EMAIL_FAKE") ?: "default@email.com"}\"")
+            buildConfigField("String", "PASSWORD_FAKE", "\"${project.findProperty("PASSWORD_FAKE") ?: "defaultpass"}\"")
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -55,6 +60,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"

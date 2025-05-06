@@ -25,6 +25,7 @@ import com.firebase.ui.auth.ErrorCodes
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.google.firebase.auth.FirebaseAuth
+import com.openclassrooms.rebonnte.BuildConfig
 import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.ui.component.ErrorState
 
@@ -33,20 +34,22 @@ fun SignInScreen(
     modifier: Modifier = Modifier,
     navigateToMedicineScreen: () -> Unit,
     hiltViewModel: SignInViewModel = hiltViewModel(),
-    ) {
+) {
     var retry by remember { mutableStateOf(false) }
     if (retry == false) {
         Box(
-            modifier = modifier.fillMaxSize().testTag("InProgress"), contentAlignment = Alignment.Center
+            modifier = modifier
+                .fillMaxSize()
+                .testTag("InProgress"),
+            contentAlignment = Alignment.Center
         ) {
             CircularProgressIndicator()
         }
     }
 
 
-    var isConnected by remember { mutableStateOf(FirebaseAuth.getInstance().currentUser!=null) }
+    var isConnected by remember { mutableStateOf(FirebaseAuth.getInstance().currentUser != null) }
     val context = LocalContext.current
-
 
 
     val launcher =
@@ -67,7 +70,11 @@ fun SignInScreen(
 
         if (!isConnected) {
             if (hiltViewModel.isDirectSignInEnabled) {
-                FirebaseAuth.getInstance().signInWithEmailAndPassword(System.getenv("EMAIL")?: "Email", System.getenv("PASSWORD")?: "Password").addOnSuccessListener {
+                val email = BuildConfig.EMAIL_FAKE
+                val password = BuildConfig.PASSWORD_FAKE
+                FirebaseAuth.getInstance().signInWithEmailAndPassword(
+                    email, password
+                ).addOnSuccessListener {
                     isConnected = true
                 }.addOnFailureListener {
                     retry = true
