@@ -45,6 +45,8 @@ android {
             )
             signingConfig = signingConfigs.getByName("release")
             isDebuggable = false
+            buildConfigField("String", "EMAIL_FAKE", "\"${project.findProperty("EMAIL_FAKE") ?: "default@email.com"}\"")
+            buildConfigField("String", "PASSWORD_FAKE", "\"${project.findProperty("PASSWORD_FAKE") ?: "defaultpass"}\"")
         }
         debug {
             buildConfigField("String", "EMAIL_FAKE", "\"${project.findProperty("EMAIL_FAKE") ?: "default@email.com"}\"")
