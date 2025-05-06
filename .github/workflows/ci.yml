@@ -69,7 +69,4 @@ jobs:
           api-level: 29
           ndk: 21.0.6113669
           cmake: 3.10.2.4988404
-          script: |
-            ./gradlew connectedCheck \
-              -PEMAIL_FAKE="${{ secrets.FAKE_EMAIL }}" \
-              -PPASSWORD_FAKE="${{ secrets.FAKE_PASSWORD }}"
+          script: ./gradlew connectedCheck -PEMAIL_FAKE="${{ secrets.FAKE_EMAIL }}" -PPASSWORD_FAKE="${{ secrets.FAKE_PASSWORD }}"
