@@ -35,10 +35,7 @@ class FirebaseApi {
      * @return Un Flow émettant une liste d'allées mise à jour en temps réel.
      */
     fun getAllAisles(): Flow<List<Aisle>> {
-        return getAisleCollection()
-            .orderBy("name")
-            .snapshots()
-            .map { snapshot ->
+        return getAisleCollection().orderBy("name").snapshots().map { snapshot ->
                 // Conversion des documents Firestore en objets Aisle
                 val aisles = snapshot.documents.map { document ->
                     document.toObject(Aisle::class.java)!!.copy(id = document.id)
@@ -65,8 +62,7 @@ class FirebaseApi {
                 OrderFilter.ORDER_BY_NAME -> collection.orderBy("name")
                 OrderFilter.ORDER_BY_STOCK -> collection.orderBy("stock")
                 OrderFilter.NONE -> collection
-                OrderFilter.FILTER_BY_NAME -> collection
-                    .whereGreaterThanOrEqualTo("name", filter)
+                OrderFilter.FILTER_BY_NAME -> collection.whereGreaterThanOrEqualTo("name", filter)
                     .whereLessThanOrEqualTo("name", filter + '\uf8ff')
 
             }
@@ -98,6 +94,16 @@ class FirebaseApi {
             awaitClose { listener.remove() }
         }
 
+
+    fun getMedicine(medicineId: String): Task<Medicine> {
+        return getMedecineCollection().document(medicineId).get().continueWith { task ->
+                val medicineDto = task.result.toObject(Medicine::class.java)
+                medicineDto!!.copy(id = task.result.id)
+
+            }
+    }
+
+
     fun addAisle(nameAisle: String) {
         val aisle = Aisle(name = nameAisle, id = "")
 
@@ -110,16 +116,22 @@ class FirebaseApi {
     }
 
     fun addHistory(medicineId: String, history: History): Task<DocumentReference?> {
-        return getMedecineCollection()
-            .document(medicineId)
-            .collection("history")
-            .add(history)
+        return getMedecineCollection().document(medicineId).collection("history").add(history)
+    }
+
+    fun checkIfMedicineExists(medicineId: String): Task<Boolean> {
+        return getMedecineCollection().document(medicineId).get().continueWith { task ->
+                task.result.exists()
+            }
     }
 
     fun modifyMedicine(medicineId: String, name: String, aisle: String, stock: Int) {
-        getMedecineCollection()
-            .document(medicineId)
-            .update("stock", stock, "name", name, "nameAisle", aisle)
+        checkIfMedicineExists(medicineId).addOnSuccessListener {
+            if (it) {
+                getMedecineCollection().document(medicineId)
+                    .update("stock", stock, "name", name, "nameAisle", aisle)
+            }
+        }
     }
 
     fun deleteMedicine(idMedicine: String): Task<Task<Void?>?> {
@@ -196,9 +208,7 @@ class FirebaseApi {
      * @return Une tâche indiquant le résultat de l'opération.
      */
     fun deleteByMovingAllMedicine(
-        aisleId: String,
-        targetAisleName: String,
-        nameAisle: String
+        aisleId: String, targetAisleName: String, nameAisle: String
     ): Task<Task<Void?>?> {
         // Récupère la référence de l'allée à supprimer
         val aisleRef = getAisleCollection().document(aisleId)
@@ -216,7 +226,9 @@ class FirebaseApi {
                 medicineDocs.forEach { doc ->
 
                     if (doc.getString("nameAisle") == nameAisle) {
-                        doc.reference.update("nameAisle", targetAisleName) // Mettre à jour l'allée
+                        doc.reference.update(
+                            "nameAisle", targetAisleName
+                        ) // Mettre à jour l'allée
                     }
                 }
             }

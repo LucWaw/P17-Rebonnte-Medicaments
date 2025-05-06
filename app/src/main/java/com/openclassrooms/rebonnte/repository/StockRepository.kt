@@ -69,6 +69,8 @@ class StockRepository @Inject constructor(
         }.flowOn(Dispatchers.IO)
 
 
+    fun getMedicine(medicineId: String) : Task<Medicine> = firebaseApi.getMedicine(medicineId)
+
     fun historyPager(medicineId: String): HistoryPagingSource =
         HistoryPagingSource(medicineId)
 

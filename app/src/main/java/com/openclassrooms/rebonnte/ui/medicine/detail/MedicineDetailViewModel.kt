@@ -1,5 +1,6 @@
 package com.openclassrooms.rebonnte.ui.medicine.detail
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
@@ -8,7 +9,7 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.google.android.gms.tasks.Task
 import com.openclassrooms.rebonnte.domain.History
-import com.openclassrooms.rebonnte.repository.OrderFilter
+import com.openclassrooms.rebonnte.domain.Medicine
 import com.openclassrooms.rebonnte.repository.StockRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,7 +24,9 @@ import javax.inject.Inject
 class MedicineDetailViewModel @Inject constructor(private val stockRepository: StockRepository) :
     ViewModel() {
 
-    val medicines = stockRepository.medicines(OrderFilter.NONE, "")
+    private val _medicine = MutableStateFlow(Medicine())
+    val medicine = _medicine.asStateFlow()
+
     val aisles = stockRepository.aisles()
 
     private val _history = MutableStateFlow<PagingData<History>>(PagingData.empty())
@@ -37,6 +40,14 @@ class MedicineDetailViewModel @Inject constructor(private val stockRepository: S
             .cachedIn(viewModelScope)
             .onEach { _history.value = it }
             .launchIn(viewModelScope)
+    }
+
+    fun loadMedicine(id: String): Task<Medicine?> {
+        return stockRepository.getMedicine(id).addOnSuccessListener { medicine ->
+                _medicine.value = medicine
+        }.addOnFailureListener {
+            Log.d("MedicineDetailViewModel", "Error loading medicine $it")
+        }
     }
 
 
