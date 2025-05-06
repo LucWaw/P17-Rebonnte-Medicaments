@@ -46,4 +46,5 @@
     <string name="do_you_really_want_to_do_delete_the_aisle">Voulez-vous vraiment supprimer l\'allée %1$s ?</string>
     <string name="by_deleting_all_medicine">en supprimant tout les médicaments</string>
     <string name="by_moving_all_medicine">en déplaçant tous les médicaments dans %1$s</string>
+    <string name="sort_options">Options de tri</string>
 </resources>

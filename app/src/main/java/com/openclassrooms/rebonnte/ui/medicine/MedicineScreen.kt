@@ -45,10 +45,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.openclassrooms.rebonnte.R
 import com.openclassrooms.rebonnte.domain.Medicine
 import com.openclassrooms.rebonnte.domain.Result
 import com.openclassrooms.rebonnte.repository.OrderFilter
@@ -59,16 +61,11 @@ import com.openclassrooms.rebonnte.ui.component.ErrorState
 fun MedicineScreen(
     viewModel: MedicineViewModel = hiltViewModel(),
     goToDetail: (String) -> Unit,
+    isAccessibilityEnabled: Boolean = false,
     addMedicine: () -> Unit
 ) {
     val medicines by viewModel.getMedicines().collectAsStateWithLifecycle(Result.Loading)
     val listState = rememberLazyListState()
-
-
-
-
-
-
 
 
     Scaffold(
@@ -89,9 +86,24 @@ fun MedicineScreen(
                                     .background(MaterialTheme.colorScheme.surface)
                                     .padding(horizontal = 8.dp, vertical = 4.dp)
                             ) {
+                                if (isAccessibilityEnabled) {
+                                    IconButton(
+                                        onClick = {
+                                            addMedicine()
+                                        }) {
+                                        Icon(Icons.Default.Add, contentDescription = "Add")
+                                    }
+                                }
+
+
                                 Box {
                                     IconButton(onClick = { expanded = true }) {
-                                        Icon(Icons.Default.MoreVert, contentDescription = null)
+                                        Icon(
+                                            Icons.Default.MoreVert,
+                                            contentDescription = stringResource(
+                                                R.string.sort_options
+                                            )
+                                        )
                                     }
                                     DropdownMenu(
                                         expanded = expanded,
@@ -268,7 +280,7 @@ fun EmbeddedSearchBar(
                     Text(
                         text = "Search",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                     )
                 }
                 innerTextField()

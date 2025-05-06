@@ -39,6 +39,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -201,7 +202,8 @@ fun MedicineDetailScreen(
                             label = { Text("Name") },
                             modifier = Modifier.fillMaxWidth()
                         )
-                        val options = (aisles as? Result.Success)?.data?.map { it.name } ?: emptyList()
+                        val options =
+                            (aisles as? Result.Success)?.data?.map { it.name } ?: emptyList()
                         var expanded by remember { mutableStateOf(false) }
                         var selectedOptionText by remember { mutableStateOf(medicine.nameAisle) }
                         ExposedDropdownMenuBox(
@@ -255,7 +257,11 @@ fun MedicineDetailScreen(
                                 onValueChange = {},
                                 label = { Text("Stock") },
                                 enabled = false,
-                                modifier = Modifier.weight(1f)
+                                modifier = Modifier.weight(1f),
+                                colors = TextFieldDefaults.colors(
+                                    disabledTextColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
+                                    disabledLabelColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
+                                )
                             )
                             IconButton(onClick = {
                                 stockLocal++

@@ -3,6 +3,7 @@ package com.openclassrooms.rebonnte
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.accessibility.AccessibilityManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
@@ -49,8 +50,10 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mainActivity = this
+        val accessibilityManager =
+            this.getSystemService(ACCESSIBILITY_SERVICE) as AccessibilityManager
         setContent {
-            MyApp()
+            MyApp(accessibilityManager)
         }
         //startBroadcastReceiver()
     }
@@ -97,10 +100,11 @@ class MainActivity : ComponentActivity() {
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyApp() {
+fun MyApp(accessibilityManager: AccessibilityManager) {
     val navController = rememberNavController()
 
-
+    val isAccessibilityEnabled =
+        accessibilityManager.isEnabled && accessibilityManager.isTouchExplorationEnabled
 
 
     RebonnteTheme {
@@ -151,7 +155,8 @@ fun MyApp() {
                                     // launch the screen in single top mode so that it is not recreated
                                     launchSingleTop = true
                                 }
-                            }
+                            },
+                        isAccessibilityEnabled = isAccessibilityEnabled
                     )
                 }
                 composable("medicine") {
@@ -170,7 +175,8 @@ fun MyApp() {
                                 // launch the screen in single top mode so that it is not recreated
                                 launchSingleTop = true
                             }
-                        }
+                        },
+                        isAccessibilityEnabled = isAccessibilityEnabled
                     )
                 }
                 composable("login") {

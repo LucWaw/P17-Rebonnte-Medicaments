@@ -41,7 +41,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -73,16 +72,15 @@ fun AisleDetailScreen(
     val aislesList = (aisles as? Result.Success<List<Aisle>>)?.data ?: emptyList()
     val aisle = aislesList.find { it.id == id }
     val filteredMedicines =
-        if(
+        if (
             medicines is Result.Success
-        ){
+        ) {
             val medicinesList = (medicines as Result.Success<List<Medicine>>).data
 
             medicinesList.filter { it.nameAisle == aisle?.name }
         } else {
             emptyList()
         }
-
 
 
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -392,7 +390,10 @@ fun MedicineItem(medicine: Medicine, onClick: (String) -> Unit) {
     ) {
         Column {
             Text(text = medicine.name, fontWeight = FontWeight.Bold)
-            Text(text = "Stock: ${medicine.stock}", color = Color.Gray)
+            Text(
+                text = "Stock: ${medicine.stock}",
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
+            )
         }
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
