@@ -270,5 +270,18 @@ class DeleteAisleByMovingTest {
 
         composeTestRule.onNodeWithText("Yes")
             .performClick()
+
+        composeTestRule.onNodeWithText("Account").performClick()
+
+        composeTestRule.waitUntil(timeoutMillis = 50000) {
+            composeTestRule
+                .onNodeWithText("Sign out")
+                .isDisplayed()
+        }
+
+        composeTestRule
+            .onNodeWithText("Sign out")
+            .performClick()
+
     }
 }

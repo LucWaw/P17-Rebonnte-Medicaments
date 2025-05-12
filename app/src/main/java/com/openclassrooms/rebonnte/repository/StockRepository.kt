@@ -6,12 +6,17 @@ import com.openclassrooms.rebonnte.domain.Aisle
 import com.openclassrooms.rebonnte.domain.History
 import com.openclassrooms.rebonnte.domain.Medicine
 import com.openclassrooms.rebonnte.domain.Result
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.retry
+import kotlinx.coroutines.flow.stateIn
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -21,8 +26,9 @@ class StockRepository @Inject constructor(
     private val firebaseApi: FirebaseApi,
     private val internetContext: InternetContext
 ) {
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    fun aisles(): Flow<Result<List<Aisle>>> = flow {
+    private fun aisles(): Flow<Result<List<Aisle>>> = flow {
         emit(Result.Loading)
 
         if (!internetContext.isInternetAvailable()) {
@@ -43,6 +49,16 @@ class StockRepository @Inject constructor(
         }
     }.flowOn(Dispatchers.IO)
 
+    val aisles = aisles().stateIn(  //Ne pas appeler aisles dans chasue repository
+        scope = scope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = Result.Loading
+    )
+
+
+    fun cancel() {
+        scope.cancel()
+    }
 
     class NoInternetException : IOException("No Internet Connection")
 
@@ -68,6 +84,12 @@ class StockRepository @Inject constructor(
             }
         }.flowOn(Dispatchers.IO)
 
+
+    val medicines = medicines(orderFilter = OrderFilter.NONE, filter = "").stateIn(
+        scope = scope,//meme scope
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = Result.Loading
+    )
 
     fun getMedicine(medicineId: String) : Task<Medicine> = firebaseApi.getMedicine(medicineId)
 

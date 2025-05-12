@@ -12,6 +12,7 @@ import com.openclassrooms.rebonnte.domain.History
 import com.openclassrooms.rebonnte.domain.Medicine
 import com.openclassrooms.rebonnte.repository.StockRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -27,7 +28,7 @@ class MedicineDetailViewModel @Inject constructor(private val stockRepository: S
     private val _medicine = MutableStateFlow(Medicine())
     val medicine = _medicine.asStateFlow()
 
-    val aisles = stockRepository.aisles()
+    val aisles = stockRepository.aisles
 
     private val _history = MutableStateFlow<PagingData<History>>(PagingData.empty())
     val history = _history.asStateFlow()
@@ -55,13 +56,13 @@ class MedicineDetailViewModel @Inject constructor(private val stockRepository: S
     La mise a jour du stock permet de mettre a jour le flow et donc l'historique en temps réel
      */
     fun modifyMedicine(medicineId: String, name: String, aisle: String, stock: Int) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) { //Add Dispatchers.Io so it don't run on main thread (by default viewModelScope scope run on main)
             stockRepository.modifyMedicine(medicineId, name, aisle, stock)
         }
     }
 
     fun addToHistory(medicineId: String, history: History) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) { //Add Dispatchers.Io so it don't run on main thread (by default viewModelScope scope run on main)
             stockRepository.addHistory(medicineId, history)
         }
     }

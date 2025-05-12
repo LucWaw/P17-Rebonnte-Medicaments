@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.openclassrooms.rebonnte.repository.MedicineDto
 import com.openclassrooms.rebonnte.repository.StockRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -34,7 +35,7 @@ class AddMedicineViewModel @Inject constructor(
     /**
      * StateFlow providing the list of available aisles.
      */
-    val aisles = stockRepository.aisles()
+    val aisles = stockRepository.aisles
 
     /**
      * Internal mutable state flow representing the current UI state of the form.
@@ -108,7 +109,7 @@ class AddMedicineViewModel @Inject constructor(
             stock = stockValue
         )
 
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) { //Add Dispatchers.Io so it don't run on main thread (by default viewModelScope scope run on main)
             stockRepository.addMedicine(medicine)
         }
         // Clear form state after successful save

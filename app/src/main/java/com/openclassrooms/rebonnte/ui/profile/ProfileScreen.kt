@@ -59,6 +59,7 @@ fun ProfileScreen(
             modifier = Modifier.padding(contentPadding),
             onDeleteUser = { openDeleteDialog(viewModel::deleteCurrentUser, onLogoutClick, context) },
             onSignOutUser = { viewModel.signOutCurrentUser(context).addOnSuccessListener {
+                viewModel.cancelCoroutine()
                 onLogoutClick()
             } })
 

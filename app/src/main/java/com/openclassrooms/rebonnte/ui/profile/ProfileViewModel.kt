@@ -3,12 +3,13 @@ package com.openclassrooms.rebonnte.ui.profile
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.tasks.Task
+import com.openclassrooms.rebonnte.repository.StockRepository
 import com.openclassrooms.rebonnte.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class ProfileViewModel @Inject constructor(private val userRepository: UserRepository) : ViewModel() {
+class ProfileViewModel @Inject constructor(private val userRepository: UserRepository, private val stockRepository: StockRepository) : ViewModel() {
 
     fun signOutCurrentUser(context: Context) : Task<Void> {
         return userRepository.signOut(context)
@@ -16,5 +17,9 @@ class ProfileViewModel @Inject constructor(private val userRepository: UserRepos
 
     fun deleteCurrentUser(context: Context) : Task<Void> {
         return userRepository.deleteUser(context)
+    }
+
+    fun cancelCoroutine() {
+        stockRepository.cancel()
     }
 }
