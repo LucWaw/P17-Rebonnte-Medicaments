@@ -8,12 +8,17 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.google.android.gms.tasks.Task
+import com.google.firebase.firestore.DocumentChange
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import com.openclassrooms.rebonnte.domain.History
 import com.openclassrooms.rebonnte.domain.Medicine
 import com.openclassrooms.rebonnte.repository.StockRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -31,21 +36,68 @@ class MedicineDetailViewModel @Inject constructor(private val stockRepository: S
     val aisles = stockRepository.aisles
 
     private val _history = MutableStateFlow<PagingData<History>>(PagingData.empty())
-    val history = _history.asStateFlow()
+    val history: StateFlow<PagingData<History>> = _history
 
-    fun loadHistory(string: String) {
-        Pager(
+    private var snapshotListenerRegistration: ListenerRegistration? = null
+    private var currentJob: Job? = null
+    private var isFirstSnapshot = true
+
+    fun loadHistory(medicineId: String) {
+        startPager(medicineId)
+        setupSnapshotListener(medicineId)
+    }
+
+    private fun startPager(medicineId: String) {
+        // Annule le job précédent (sinon multiples collecteurs en vie)
+        currentJob?.cancel()
+        currentJob = Pager(
             config = PagingConfig(pageSize = 20, prefetchDistance = 5),
-            pagingSourceFactory = { stockRepository.historyPager(string) }
+            pagingSourceFactory = { stockRepository.historyPager(medicineId) }
         ).flow
             .cachedIn(viewModelScope)
             .onEach { _history.value = it }
             .launchIn(viewModelScope)
     }
 
+    private fun setupSnapshotListener(id: String) {
+        // éviter d'attacher plusieurs listeners
+        snapshotListenerRegistration?.remove()
+        isFirstSnapshot = true
+
+        val collectionRef = FirebaseFirestore.getInstance()
+            .collection("medicines")
+            .document(id)
+            .collection("history")
+
+        snapshotListenerRegistration = collectionRef.addSnapshotListener { snapshot, error ->
+            if (error != null || snapshot == null) return@addSnapshotListener
+
+            if (isFirstSnapshot) {
+                isFirstSnapshot = false
+                return@addSnapshotListener
+            }
+
+            val isFromServer = !snapshot.metadata.isFromCache
+            val hasRealAdditions = snapshot.documentChanges.any {
+                it.type == DocumentChange.Type.ADDED
+            }
+
+            if (isFromServer && hasRealAdditions) {
+                startPager(id) // recharge les données
+            }
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        snapshotListenerRegistration?.remove()
+        currentJob?.cancel()
+    }
+
+
     fun loadMedicine(id: String): Task<Medicine?> {
         return stockRepository.getMedicine(id).addOnSuccessListener { medicine ->
-                _medicine.value = medicine
+            _medicine.value = medicine
         }.addOnFailureListener {
             Log.d("MedicineDetailViewModel", "Error loading medicine $it")
         }
