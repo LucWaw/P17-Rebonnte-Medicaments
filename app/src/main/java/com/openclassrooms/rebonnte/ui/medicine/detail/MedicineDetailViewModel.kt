@@ -3,14 +3,9 @@ package com.openclassrooms.rebonnte.ui.medicine.detail
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.google.android.gms.tasks.Task
-import com.google.firebase.firestore.DocumentChange
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ListenerRegistration
 import com.openclassrooms.rebonnte.domain.History
 import com.openclassrooms.rebonnte.domain.Medicine
 import com.openclassrooms.rebonnte.repository.StockRepository
@@ -38,63 +33,56 @@ class MedicineDetailViewModel @Inject constructor(private val stockRepository: S
     private val _history = MutableStateFlow<PagingData<History>>(PagingData.empty())
     val history: StateFlow<PagingData<History>> = _history
 
-    private var snapshotListenerRegistration: ListenerRegistration? = null
     private var currentJob: Job? = null
-    private var isFirstSnapshot = true
+    private var reloadJob: Job? = null
 
+    /**
+     * Loads the history for a given medicine.
+     *
+     * This function sets up a snapshot listener for the medicine's stock,
+     * starts a pager to display the history, and sets up a listener to reload
+     * the pager when the stock data changes.
+     *
+     * @param medicineId The ID of the medicine to load the history for.
+     */
     fun loadHistory(medicineId: String) {
+        stockRepository.setupSnapshotListener(medicineId)
+
         startPager(medicineId)
-        setupSnapshotListener(medicineId)
+
+        reloadJob?.cancel()
+        reloadJob = stockRepository.shouldReload
+            .onEach { startPager(medicineId) }
+            .launchIn(viewModelScope)
     }
 
     private fun startPager(medicineId: String) {
-        // Annule le job précédent (sinon multiples collecteurs en vie)
         currentJob?.cancel()
-        currentJob = Pager(
-            config = PagingConfig(pageSize = 20, prefetchDistance = 5),
-            pagingSourceFactory = { stockRepository.historyPager(medicineId) }
-        ).flow
+        currentJob = stockRepository.pagerFlow(medicineId)
             .cachedIn(viewModelScope)
             .onEach { _history.value = it }
             .launchIn(viewModelScope)
     }
 
-    private fun setupSnapshotListener(id: String) {
-        // éviter d'attacher plusieurs listeners
-        snapshotListenerRegistration?.remove()
-        isFirstSnapshot = true
-
-        val collectionRef = FirebaseFirestore.getInstance()
-            .collection("medicines")
-            .document(id)
-            .collection("history")
-
-        snapshotListenerRegistration = collectionRef.addSnapshotListener { snapshot, error ->
-            if (error != null || snapshot == null) return@addSnapshotListener
-
-            if (isFirstSnapshot) {
-                isFirstSnapshot = false
-                return@addSnapshotListener
-            }
-
-            val isFromServer = !snapshot.metadata.isFromCache
-            val hasRealAdditions = snapshot.documentChanges.any {
-                it.type == DocumentChange.Type.ADDED
-            }
-
-            if (isFromServer && hasRealAdditions) {
-                startPager(id) // recharge les données
-            }
-        }
-    }
-
     override fun onCleared() {
         super.onCleared()
-        snapshotListenerRegistration?.remove()
+        stockRepository.snapshotListenerRegistration?.remove()
         currentJob?.cancel()
+        reloadJob?.cancel()
     }
 
 
+    /**
+     * Loads a specific medicine from the repository based on its ID.
+     *
+     * This function asynchronously retrieves medicine data from the `stockRepository`.
+     * Upon successful retrieval, the `_medicine` StateFlow is updated with the fetched medicine.
+     * If an error occurs during loading, a log message is recorded.
+     *
+     * @param id The unique identifier of the medicine to load.
+     * @return A [Task] that will eventually contain the [Medicine] object if found, or null.
+     *         The task also handles success and failure listeners internally.
+     */
     fun loadMedicine(id: String): Task<Medicine?> {
         return stockRepository.getMedicine(id).addOnSuccessListener { medicine ->
             _medicine.value = medicine
@@ -105,7 +93,7 @@ class MedicineDetailViewModel @Inject constructor(private val stockRepository: S
 
 
     /*
-    La mise a jour du stock permet de mettre a jour le flow et donc l'historique en temps réel
+    Update of the stock allows to update the flow and therefore the history in real time
      */
     fun modifyMedicine(medicineId: String, name: String, aisle: String, stock: Int) {
         viewModelScope.launch(Dispatchers.IO) { //Add Dispatchers.Io so it don't run on main thread (by default viewModelScope scope run on main)
