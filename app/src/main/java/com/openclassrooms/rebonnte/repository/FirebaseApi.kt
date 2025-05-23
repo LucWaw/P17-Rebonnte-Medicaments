@@ -1,6 +1,7 @@
 package com.openclassrooms.rebonnte.repository
 
 import com.google.android.gms.tasks.Task
+import com.google.android.gms.tasks.Tasks
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
@@ -125,15 +126,18 @@ class FirebaseApi {
             }
     }
 
-    fun modifyMedicine(medicineId: String, name: String, aisle: String, stock: Int) {
-        checkIfMedicineExists(medicineId).addOnSuccessListener {
-            if (it) {
+    fun modifyMedicine(medicineId: String, name: String, aisle: String, stock: Int) : Task<Void?> {
+        return checkIfMedicineExists(medicineId).continueWithTask { task ->
+            if (task.result) {
                 getMedecineCollection().document(medicineId)
-                    .update("stock", stock, "name", name, "nameAisle", aisle)
+                    .update("stock", stock, "name", name, "nameAisle", aisle) //return this
+            } else {
+                Tasks.forException(
+                    Exception("Le médicament avec l'ID $medicineId n'existe pas.")
+                )
             }
         }
     }
-
     fun deleteMedicine(idMedicine: String): Task<Task<Void?>?> {
         // Récupère la référence du document du médicament
         val medicineRef = getMedecineCollection().document(idMedicine)

@@ -6,18 +6,17 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.google.android.gms.tasks.Task
+import com.google.firebase.firestore.DocumentReference
 import com.openclassrooms.rebonnte.domain.History
 import com.openclassrooms.rebonnte.domain.Medicine
 import com.openclassrooms.rebonnte.repository.StockRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
@@ -95,16 +94,14 @@ class MedicineDetailViewModel @Inject constructor(private val stockRepository: S
     /*
     Update of the stock allows to update the flow and therefore the history in real time
      */
-    fun modifyMedicine(medicineId: String, name: String, aisle: String, stock: Int) {
-        viewModelScope.launch(Dispatchers.IO) { //Add Dispatchers.Io so it don't run on main thread (by default viewModelScope scope run on main)
-            stockRepository.modifyMedicine(medicineId, name, aisle, stock)
-        }
+    fun modifyMedicine(medicineId: String, name: String, aisle: String, stock: Int): Task<Void?> {
+        return stockRepository.modifyMedicine(medicineId, name, aisle, stock)
+
     }
 
-    fun addToHistory(medicineId: String, history: History) {
-        viewModelScope.launch(Dispatchers.IO) { //Add Dispatchers.Io so it don't run on main thread (by default viewModelScope scope run on main)
-            stockRepository.addHistory(medicineId, history)
-        }
+    fun addToHistory(medicineId: String, history: History): Task<DocumentReference?> {
+        return stockRepository.addHistory(medicineId, history)
+
     }
 
     fun deleteMedicine(medicineId: String): Task<Task<Void?>?> {

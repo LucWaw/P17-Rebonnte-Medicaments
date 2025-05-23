@@ -116,8 +116,8 @@ class StockRepository @Inject constructor(
         return firebaseApi.addHistory(medicineId, history)
     }
 
-    fun modifyMedicine(medicineId: String, name: String, aisle: String, stock: Int) {
-        firebaseApi.modifyMedicine(medicineId, name, aisle, stock)
+    fun modifyMedicine(medicineId: String, name: String, aisle: String, stock: Int): Task<Void?> {
+        return firebaseApi.modifyMedicine(medicineId, name, aisle, stock)
     }
 
     fun deleteMedicine(idMedicine: String): Task<Task<Void?>?> {

@@ -82,8 +82,9 @@ fun MedicineDetailScreen(
     var stockLocal by remember { mutableIntStateOf(medicine.stock) }
     var nameLocal by remember { mutableStateOf(medicine.name) }
     var selectedOptionText by remember { mutableStateOf(medicine.nameAisle) }
-
-    LaunchedEffect(id) {
+    var trigerloadMedicineLaunchedEffect by remember { mutableStateOf(false) }
+    var trigerloadHistoryLaunchedEffect by remember { mutableStateOf(false) }
+    LaunchedEffect(id + trigerloadMedicineLaunchedEffect) {
         viewModel.loadMedicine(id).addOnSuccessListener {
             stockLocal = it?.stock ?: 0
             nameLocal = it?.name ?: ""
@@ -95,7 +96,7 @@ fun MedicineDetailScreen(
 
     val historyItems = viewModel.history.collectAsLazyPagingItems()
 
-    LaunchedEffect(id) {
+    LaunchedEffect(id + trigerloadHistoryLaunchedEffect) {
         viewModel.loadHistory(id)
     }
     val lazyCollumnState = rememberLazyListState()
@@ -296,7 +297,9 @@ fun MedicineDetailScreen(
                                 nameLocal,
                                 selectedOptionText,
                                 medicine.stock + (stockLocal - medicine.stock)
-                            )
+                            ).addOnSuccessListener {
+                                trigerloadMedicineLaunchedEffect = !trigerloadMedicineLaunchedEffect
+                            }
                             viewModel.addToHistory(
                                 medicine.id,
                                 History(
@@ -308,8 +311,9 @@ fun MedicineDetailScreen(
                                     date = System.currentTimeMillis(),
                                     details = modifiedDetails
                                 )
-                            )
-                            viewModel.loadHistory(id)
+                            ).addOnSuccessListener {
+                                trigerloadHistoryLaunchedEffect = !trigerloadHistoryLaunchedEffect
+                            }
 
 
                         }
